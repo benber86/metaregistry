@@ -33,14 +33,14 @@ struct AddressInfo:
 interface AddressProvider:
     def admin() -> address: view
     def get_address(_id: uint256) -> address: view
-    def get_registry() -> address: view
     def get_id_info(_id: uint256) -> AddressInfo: view
 
 
 registry_length: uint256
 get_registry: public(HashMap[uint256, Registry])
 total_pools: uint256
-pool_handlers: public(HashMap[address, address])
+internal_pool_registry: HashMap[address, uint256]
+authorized_registries: HashMap[address, bool]
 admin: public(address)
 address_provider: public(AddressProvider)
 
@@ -62,6 +62,16 @@ def update_address_provider(_provider: address):
     assert _provider != ZERO_ADDRESS  # dev: not to zero
     self.address_provider = AddressProvider(_provider)
 
+@external
+def update_internal_pool_registry(_pool: address, _index: uint256):
+    """
+    @notice Update the registry associated with a pool
+    @dev Callback function used by the registry handlers when syncing
+    @param _pool Pool to update
+    @param _index Index of the associated registry incremented by 1
+    """
+    assert self.authorized_registries[msg.sender]
+    self.internal_pool_registry[_pool] = _index
 
 @internal
 def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _registry_handler: address, _description: String[64], _is_active: bool):
@@ -71,6 +81,8 @@ def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _regi
         self.registry_length += 1
 
     self.get_registry[_index] = Registry({addr: _addr, id: _id, registry_handler: _registry_handler, description: _description, is_active: _is_active})
+    if (self.authorized_registries[_registry_handler] != _is_active):
+        self.authorized_registries[_registry_handler] = _is_active
 
 
 @external
@@ -110,10 +122,7 @@ def switch_registry_active_status(_index: uint256):
     assert msg.sender == self.admin  # dev: admin-only function
     assert _index < self.registry_length
     registry: Registry = self.get_registry[_index]
-    active_status: bool = False
-    if registry.is_active == False:
-        active_status = True
-    self._update_single_registry(_index, registry.addr, registry.id, registry.registry_handler, registry.description, active_status)
+    self._update_single_registry(_index, registry.addr, registry.id, registry.registry_handler, registry.description, not registry.is_active)
 
 
 @external
