@@ -63,15 +63,15 @@ def update_address_provider(_provider: address):
     self.address_provider = AddressProvider(_provider)
 
 @external
-def update_internal_pool_registry(_pool: address, _index: uint256):
+def update_internal_pool_registry(_pool: address, _incremented_index: uint256):
     """
     @notice Update the registry associated with a pool
     @dev Callback function used by the registry handlers when syncing
     @param _pool Pool to update
-    @param _index Index of the associated registry incremented by 1
+    @param _incremented_index Index of the associated registry incremented by 1
     """
     assert self.authorized_registries[msg.sender]
-    self.internal_pool_registry[_pool] = _index
+    self.internal_pool_registry[_pool] = _incremented_index
 
 @internal
 def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _registry_handler: address, _description: String[64], _is_active: bool):
