@@ -11,6 +11,7 @@ interface BaseRegistry:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
     def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
+    def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_gauge(_pool: address) -> address: view
     def get_n_coins(_pool: address) -> uint256[2]: view
@@ -107,3 +108,15 @@ def get_n_coins(_pool: address) -> uint256:
 @view
 def get_underlying_coins(_pool: address) -> address[MAX_COINS]:
     return self.base_registry.get_underlying_coins(_pool)
+
+
+@external
+@view
+def get_decimals(_pool: address) -> uint256[MAX_COINS]:
+    return self.base_registry.get_decimals(_pool)
+
+
+@external
+@view
+def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]:
+    return self.base_registry.get_underlying_decimals(_pool)

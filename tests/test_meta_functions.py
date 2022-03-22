@@ -55,3 +55,35 @@ def test_get_underlying_coins(metaregistry, pools):
     underlying_coins = metaregistry.get_underlying_coins(pool.address)
     assert underlying_coins == pool.underlying_coins
     print(f"{pool} ({pool_type}): {underlying_coins}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_get_decimals(metaregistry, pools):
+    pool_type, pool = pools
+    underlying_coins = metaregistry.get_underlying_coins(pool.address)
+    assert underlying_coins == pool.underlying_coins
+    print(f"{pool} ({pool_type}): {underlying_coins}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_get_underlying_decimals(metaregistry, pools):
+    pool_type, pool = pools
+    underlying_coins = metaregistry.get_underlying_coins(pool.address)
+    assert underlying_coins == pool.underlying_coins
+    print(f"{pool} ({pool_type}): {underlying_coins}")

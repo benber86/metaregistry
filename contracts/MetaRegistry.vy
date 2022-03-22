@@ -40,6 +40,8 @@ interface RegistryHandler:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
     def get_n_coins(_pool: address) -> uint256: view
     def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
+    def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
+    def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]: view
 
 
 registry_length: public(uint256)
@@ -211,4 +213,19 @@ def get_underlying_coins(_pool: address) -> address[MAX_COINS]:
     registry_index: uint256 = self.internal_pool_registry[_pool]
     assert registry_index > 0, "no registry"
     return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_underlying_coins(_pool)
+
+@external
+@view
+def get_decimals(_pool: address) -> uint256[MAX_COINS]:
+    registry_index: uint256 = self.internal_pool_registry[_pool]
+    assert registry_index > 0, "no registry"
+    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_decimals(_pool)
+
+@external
+@view
+def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]:
+    registry_index: uint256 = self.internal_pool_registry[_pool]
+    assert registry_index > 0, "no registry"
+    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_underlying_decimals(_pool)
+
 

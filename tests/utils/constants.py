@@ -8,6 +8,8 @@ class Pool:
     coins: Tuple[str, str, str, str, str, str, str, str]
     n_coins: int
     underlying_coins: Tuple[str, str, str, str, str, str, str, str]
+    decimals: Tuple[int, int, int, int, int, int, int, int]
+    underlying_decimals: Tuple[int, int, int, int, int, int, int, int]
 
 
 LINK_POOL = Pool(
@@ -33,6 +35,8 @@ LINK_POOL = Pool(
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
     ),
+    decimals=(18, 18, 0, 0, 0, 0, 0, 0),
+    underlying_decimals=(18, 18, 0, 0, 0, 0, 0, 0),
 )
 
 MIM_METAPOOL = Pool(
@@ -58,6 +62,8 @@ MIM_METAPOOL = Pool(
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
     ),
+    decimals=(18, 18, 0, 0, 0, 0, 0, 0),
+    underlying_decimals=(18, 18, 6, 6, 0, 0, 0, 0),
 )
 
 DYDX_STAKED_POOL = Pool(
@@ -83,6 +89,8 @@ DYDX_STAKED_POOL = Pool(
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
     ),
+    decimals=(18, 18, 0, 0, 0, 0, 0, 0),
+    underlying_decimals=(18, 18, 0, 0, 0, 0, 0, 0),
 )
 
 BBTC_METAPOOL = Pool(
@@ -108,6 +116,8 @@ BBTC_METAPOOL = Pool(
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
     ),
+    decimals=(18, 18, 0, 0, 0, 0, 0, 0),
+    underlying_decimals=(18, 8, 8, 18, 0, 0, 0, 0),
 )
 
 TRICRYPTO_POOL = Pool(
@@ -133,6 +143,8 @@ TRICRYPTO_POOL = Pool(
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
     ),
+    decimals=(6, 8, 18, 0, 0, 0, 0, 0),
+    underlying_decimals=(6, 8, 18, 0, 0, 0, 0, 0),
 )
 
 FXS_ETH_POOL = Pool(
@@ -158,4 +170,6 @@ FXS_ETH_POOL = Pool(
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
     ),
+    decimals=(18, 18, 0, 0, 0, 0, 0, 0),
+    underlying_decimals=(18, 8, 8, 18, 0, 0, 0, 0),
 )

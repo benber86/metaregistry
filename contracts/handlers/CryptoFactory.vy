@@ -70,7 +70,7 @@ def sync_pool_list():
 
 @internal
 @view
-def _get_coins(_pool: address) -> address[8]:
+def _get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
     _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
     _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
     for i in range(MAX_COINS):
@@ -91,3 +91,23 @@ def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
 @view
 def get_n_coins(_pool: address) -> uint256:
     return 2
+
+
+@internal
+@view
+def _get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    _decimals: uint256[MAX_COINS] = self.base_registry.get_decimals(_pool)
+    _padded_decimals: uint256[MAX_METAREGISTRY_COINS] = empty(uint256[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_decimals[i] = _decimals[i]
+    return _padded_decimals
+
+@external
+@view
+def get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._get_decimals(_pool)
+
+@external
+@view
+def get_underlying_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._get_decimals(_pool)
