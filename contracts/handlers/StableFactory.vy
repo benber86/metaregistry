@@ -11,6 +11,7 @@ MAX_POOLS: constant(int128) = 128
 
 interface BaseRegistry:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
+    def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_gauge(_pool: address) -> address: view
@@ -72,6 +73,22 @@ def sync_pool_list():
 @view
 def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
     _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
+    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_coins[i] = _coins[i]
+    return _padded_coins
+
+
+@external
+@view
+def get_n_coins(_pool: address) -> uint256:
+    return self.base_registry.get_n_coins(_pool)
+
+
+@external
+@view
+def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    _coins: address[MAX_COINS] = self.base_registry.get_underlying_coins(_pool)
     _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
     for i in range(MAX_COINS):
         _padded_coins[i] = _coins[i]

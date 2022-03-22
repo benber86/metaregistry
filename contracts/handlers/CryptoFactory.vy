@@ -68,11 +68,26 @@ def sync_pool_list():
         self.total_pools += 1
 
 
-@external
+@internal
 @view
-def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+def _get_coins(_pool: address) -> address[8]:
     _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
     _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
     for i in range(MAX_COINS):
         _padded_coins[i] = _coins[i]
     return _padded_coins
+
+@external
+@view
+def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    return self._get_coins(_pool)
+
+@external
+@view
+def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    return self._get_coins(_pool)
+
+@external
+@view
+def get_n_coins(_pool: address) -> uint256:
+    return 2

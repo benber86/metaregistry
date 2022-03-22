@@ -96,3 +96,15 @@ def add_pool(_pool: address):
 @view
 def get_coins(_pool: address) -> address[MAX_COINS]:
     return self.base_registry.get_coins(_pool)
+
+
+@external
+@view
+def get_n_coins(_pool: address) -> uint256:
+    return self.base_registry.get_n_coins(_pool)
+
+
+@external
+@view
+def get_underlying_coins(_pool: address) -> address[MAX_COINS]:
+    return self.base_registry.get_coins(_pool)

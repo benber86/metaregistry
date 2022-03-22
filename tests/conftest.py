@@ -1,5 +1,12 @@
 import pytest
-from brownie import interface, MetaRegistry, StableRegistry, CryptoRegistry, StableFactory, CryptoFactory
+from brownie import (
+    interface,
+    MetaRegistry,
+    StableRegistry,
+    CryptoRegistry,
+    StableFactory,
+    CryptoFactory,
+)
 
 
 @pytest.fixture(scope="session")
@@ -66,11 +73,12 @@ def crypto_factory_handler(owner, metaregistry):
 
 
 @pytest.fixture(scope="module", autouse=True)
-def sync_registries(metaregistry,
-                    stable_factory_handler,
-                    stable_registry_handler,
-                    crypto_factory_handler,
-                    crypto_registry_handler,
-                    owner):
+def sync_registries(
+    metaregistry,
+    stable_factory_handler,
+    stable_registry_handler,
+    crypto_factory_handler,
+    crypto_registry_handler,
+    owner,
+):
     metaregistry.sync({"from": owner})
-
