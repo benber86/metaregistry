@@ -1,6 +1,6 @@
 # @version 0.2.15
 """
-@title Curve Registry Handler for v1 Registry
+@title Curve Registry Handler for v2 Crypto Registry
 @license MIT
 """
 
@@ -20,18 +20,26 @@ interface BaseRegistry:
 interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
+    def registry_length() -> uint256: view
 
+interface AddressProvider:
+    def get_address(_id: uint256) -> address: view
+
+address_provider: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
 total_pools: public(uint256) 
 registry_index: uint256
+registry_id: uint256
 
 
 @external
-def __init__(_metaregistry: address, _base_registry: address, _index: uint256):
+def __init__(_metaregistry: address, _id: uint256):
     self.metaregistry = _metaregistry
-    self.base_registry = BaseRegistry(_base_registry)
-    self.registry_index = _index
+    self.base_registry = BaseRegistry(AddressProvider(address_provider).get_address(_id))
+    self.registry_id = _id
+    self.registry_index = MetaRegistry(_metaregistry).registry_length()
+
 
 
 @external

@@ -4,7 +4,8 @@
 @license MIT
 """
 
-MAX_COINS: constant(int128) = 8
+MAX_METAREGISTRY_COINS: constant(int128) = 8
+MAX_COINS: constant(int128) = 4
 MAX_POOLS: constant(int128) = 128
 
 
@@ -20,18 +21,25 @@ interface BaseRegistry:
 interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
+    def registry_length() -> uint256: view
 
+interface AddressProvider:
+    def get_address(_id: uint256) -> address: view
+
+address_provider: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
 total_pools: public(uint256) 
 registry_index: uint256
+registry_id: uint256
 
 
 @external
-def __init__(_metaregistry: address, _base_registry: address, _index: uint256):
+def __init__(_metaregistry: address, _id: uint256):
     self.metaregistry = _metaregistry
-    self.base_registry = BaseRegistry(_base_registry)
-    self.registry_index = _index
+    self.base_registry = BaseRegistry(AddressProvider(address_provider).get_address(_id))
+    self.registry_id = _id
+    self.registry_index = MetaRegistry(_metaregistry).registry_length()
 
 
 @external
@@ -59,7 +67,12 @@ def sync_pool_list():
         MetaRegistry(self.metaregistry).update_internal_pool_registry(self.base_registry.pool_list(i), self.registry_index + 1)
         self.total_pools += 1
 
+
 @external
 @view
-def get_coins(_pool: address) -> address[MAX_COINS]:
-    return self.base_registry.get_coins(_pool)
+def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
+    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_coins[i] = _coins[i]
+    return _padded_coins

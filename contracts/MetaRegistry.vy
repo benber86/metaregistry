@@ -35,11 +35,15 @@ interface AddressProvider:
     def get_address(_id: uint256) -> address: view
     def get_id_info(_id: uint256) -> AddressInfo: view
 
+interface RegistryHandler:
+    def sync_pool_list(): nonpayable
+    def get_coins(_pool: address) -> address[MAX_COINS]: view
 
-registry_length: uint256
+
+registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
 total_pools: uint256
-internal_pool_registry: HashMap[address, uint256]
+internal_pool_registry: public(HashMap[address, uint256])
 authorized_registries: HashMap[address, bool]
 admin: public(address)
 address_provider: public(AddressProvider)
@@ -155,3 +159,40 @@ def update_registry_addresses() -> uint256:
             self._update_single_registry(i, pool_info.addr, registry.id, registry.registry_handler, pool_info.description, pool_info.is_active)
             count += 1
     return count
+
+@internal
+def _sync_registry(_index: uint256):
+        registry: Registry = self.get_registry[_index]
+        if (registry.is_active):
+            RegistryHandler(registry.registry_handler).sync_pool_list()
+
+@external
+def sync_registry(_index: uint256):
+    """
+    @notice Sync a particular registry
+    @param _index Registry index
+    """
+    assert msg.sender == self.admin  # dev: admin-only function
+    assert _index < self.registry_length
+    self._sync_registry(_index)
+
+
+@external
+def sync():
+    """
+    @notice Gets all the pools from a registry that are not currently registered
+    """
+    assert msg.sender == self.admin  # dev: admin-only function
+
+    for i in range(MAX_REGISTRIES):
+        if i == self.registry_length:
+            break
+        self._sync_registry(i)
+
+@external
+@view
+def get_coins(_pool: address) -> address[MAX_COINS]:
+    registry_index: uint256 = self.internal_pool_registry[_pool]
+    assert registry_index > 0, "no registry"
+    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_coins(_pool)
+
