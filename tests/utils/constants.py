@@ -15,6 +15,8 @@ class Pool:
         Tuple[str, str, str, str, str, str, str, str, str, str],
         Tuple[int, int, int, int, int, int, int, int, int, int],
     ]
+    is_meta: bool
+    name: str
 
 
 LINK_POOL = Pool(
@@ -58,6 +60,8 @@ LINK_POOL = Pool(
         ),
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     ),
+    is_meta=False,
+    name="link",
 )
 
 MIM_METAPOOL = Pool(
@@ -101,6 +105,8 @@ MIM_METAPOOL = Pool(
         ),
         (6, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     ),
+    is_meta=True,
+    name="mim",
 )
 
 DYDX_STAKED_POOL = Pool(
@@ -144,6 +150,8 @@ DYDX_STAKED_POOL = Pool(
         ),
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     ),
+    is_meta=False,
+    name="Curve.fi Factory Plain Pool: DYDX/stkDYDX",
 )
 
 BBTC_METAPOOL = Pool(
@@ -187,6 +195,8 @@ BBTC_METAPOOL = Pool(
         ),
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     ),
+    is_meta=True,
+    name="Curve.fi Factory BTC Metapool: ibBTC",
 )
 
 TRICRYPTO_POOL = Pool(
@@ -230,6 +240,8 @@ TRICRYPTO_POOL = Pool(
         ),
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     ),
+    is_meta=False,
+    name="tricrypto2",
 )
 
 FXS_ETH_POOL = Pool(
@@ -273,4 +285,6 @@ FXS_ETH_POOL = Pool(
         ),
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     ),
+    is_meta=False,
+    name="Curve.fi Factory Crypto Pool: FXS/ETH",
 )

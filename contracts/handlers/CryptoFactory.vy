@@ -30,6 +30,9 @@ interface AddressProvider:
 interface GaugeController:
     def gauge_types(gauge: address) -> int128: view
 
+interface ERC20:
+    def name() -> String[64]: view
+
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
 total_pools: public(uint256) 
@@ -137,10 +140,15 @@ def get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
 def get_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
     return self._get_balances(_pool)
 
+@internal
+@view
+def _get_lp_token(_pool: address) -> address:
+    return self.base_registry.get_token(_pool)
+
 @external
 @view
 def get_lp_token(_pool: address) -> address:
-    return self.base_registry.get_token(_pool)
+    return self._get_lp_token(_pool)
 
 @external
 @view
@@ -150,3 +158,17 @@ def get_gauges(_pool: address) -> (address[10], int128[10]):
     gauges[0] = self.base_registry.get_gauge(_pool)
     types[0] = GaugeController(GAUGE_CONTROLLER).gauge_types(gauges[0])
     return (gauges, types)
+
+@external
+@view
+def is_meta(_pool: address) -> bool:
+    return False
+
+@external
+@view
+def get_pool_name(_pool: address) -> String[64]:
+    token: address = self._get_lp_token(_pool)
+    if token != ZERO_ADDRESS:
+        return ERC20(self.base_registry.get_token(_pool)).name()
+    else:
+        return ""

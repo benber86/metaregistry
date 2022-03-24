@@ -147,3 +147,35 @@ def test_get_gauges(metaregistry, pools):
     gauges = metaregistry.get_gauges(pool.address)
     assert gauges == pool.gauges
     print(f"{pool} ({pool_type}): {gauges}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_is_meta(metaregistry, pools):
+    pool_type, pool = pools
+    is_meta = metaregistry.is_meta(pool.address)
+    assert is_meta == pool.is_meta
+    print(f"{pool} ({pool_type}): {is_meta}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_get_pool_name(metaregistry, pools):
+    pool_type, pool = pools
+    pool_name = metaregistry.get_pool_name(pool.address)
+    assert pool_name == pool.name
+    print(f"{pool} ({pool_type}): {pool_name}")

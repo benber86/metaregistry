@@ -46,7 +46,8 @@ interface RegistryHandler:
     def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_lp_token(_pool: address) -> address: view
     def get_gauges(_pool: address) -> (address[10], int128[10]): view
-
+    def is_meta(_pool: address) -> bool: view
+    def get_pool_name(_pool: address) -> String[64]: view
 
 registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
@@ -197,69 +198,65 @@ def sync():
             break
         self._sync_registry(i)
 
+@internal
+@view
+def _get_registry_handler_from_pool(_pool: address) -> address:
+    registry_index: uint256 = self.internal_pool_registry[_pool]
+    assert registry_index > 0, "no registry"
+    return self.get_registry[registry_index - 1].registry_handler
+
 @external
 @view
 def get_coins(_pool: address) -> address[MAX_COINS]:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_coins(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_coins(_pool)
 
 @external
 @view
 def get_n_coins(_pool: address) -> uint256:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_n_coins(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_n_coins(_pool)
 
 @external
 @view
 def get_underlying_coins(_pool: address) -> address[MAX_COINS]:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_underlying_coins(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_coins(_pool)
 
 @external
 @view
 def get_decimals(_pool: address) -> uint256[MAX_COINS]:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_decimals(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_decimals(_pool)
 
 @external
 @view
 def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_underlying_decimals(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_decimals(_pool)
 
 @external
 @view
 def get_balances(_pool: address) -> uint256[MAX_COINS]:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_balances(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_balances(_pool)
 
 @external
 @view
 def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_underlying_balances(_pool)
-
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_balances(_pool)
 
 @external
 @view
 def get_lp_token(_pool: address) -> address:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_lp_token(_pool)
-
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_lp_token(_pool)
 
 @external
 @view
 def get_gauges(_pool: address) -> (address[10], int128[10]):
-    registry_index: uint256 = self.internal_pool_registry[_pool]
-    assert registry_index > 0, "no registry"
-    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_gauges(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_gauges(_pool)
 
+@external
+@view
+def is_meta(_pool: address) -> bool:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).is_meta(_pool)
+
+@external
+@view
+def get_pool_name(_pool: address) -> String[64]:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_pool_name(_pool)
 

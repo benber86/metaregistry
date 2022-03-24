@@ -41,6 +41,7 @@ interface ERC20:
     def balanceOf(_addr: address) -> uint256: view
     def decimals() -> uint256: view
     def totalSupply() -> uint256: view
+    def name() -> String[64]: view
 
 interface GaugeController:
     def gauge_types(gauge: address) -> int128: view
@@ -186,3 +187,16 @@ def get_gauges(_pool: address) -> (address[10], int128[10]):
     gauges[0] = self.base_registry.get_gauge(_pool)
     types[0] = GaugeController(GAUGE_CONTROLLER).gauge_types(gauges[0])
     return (gauges, types)
+
+@external
+@view
+def is_meta(_pool: address) -> bool:
+    return self.base_registry.is_meta(_pool)
+
+@external
+@view
+def get_pool_name(_pool: address) -> String[64]:
+    if self.base_registry.get_n_coins(_pool) > 0:
+        return ERC20(_pool).name()
+    else:
+        return ""

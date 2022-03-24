@@ -13,6 +13,7 @@ interface BaseRegistry:
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_gauges(_pool: address) -> (address[10], int128[10]): view
+    def get_pool_name(_pool: address) -> String[64]: view
     def get_n_coins(_pool: address) -> uint256: view
     def get_lp_token(_pool: address) -> address: view
     def pool_count() -> uint256: view
@@ -148,3 +149,12 @@ def get_lp_token(_pool: address) -> address:
 def get_gauges(_pool: address) -> (address[10], int128[10]):
     return self.base_registry.get_gauges(_pool)
 
+@external
+@view
+def is_meta(_pool: address) -> bool:
+    return False
+
+@external
+@view
+def get_pool_name(_pool: address) -> String[64]:
+    return self.base_registry.get_pool_name(_pool)
