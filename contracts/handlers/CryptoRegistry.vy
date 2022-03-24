@@ -120,3 +120,18 @@ def get_decimals(_pool: address) -> uint256[MAX_COINS]:
 @view
 def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]:
     return self.base_registry.get_decimals(_pool)
+
+@internal
+@view
+def _get_balances(_pool: address) -> uint256[MAX_COINS]:
+    return self.base_registry.get_balances(_pool)
+
+@external
+@view
+def get_balances(_pool: address) -> uint256[MAX_COINS]:
+    return self._get_balances(_pool)
+
+@external
+@view
+def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]:
+    return self._get_balances(_pool)

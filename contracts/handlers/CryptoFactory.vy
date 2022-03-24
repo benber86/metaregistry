@@ -67,6 +67,14 @@ def sync_pool_list():
         MetaRegistry(self.metaregistry).update_internal_pool_registry(self.base_registry.pool_list(i), self.registry_index + 1)
         self.total_pools += 1
 
+@internal
+@view
+def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COINS]:
+    _padded_array: uint256[MAX_METAREGISTRY_COINS] = empty(uint256[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_array[i] = _array[i]
+    return _padded_array
+
 
 @internal
 @view
@@ -96,11 +104,7 @@ def get_n_coins(_pool: address) -> uint256:
 @internal
 @view
 def _get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
-    _decimals: uint256[MAX_COINS] = self.base_registry.get_decimals(_pool)
-    _padded_decimals: uint256[MAX_METAREGISTRY_COINS] = empty(uint256[MAX_METAREGISTRY_COINS])
-    for i in range(MAX_COINS):
-        _padded_decimals[i] = _decimals[i]
-    return _padded_decimals
+    return self._pad_uint_array(self.base_registry.get_decimals(_pool))
 
 @external
 @view
@@ -111,3 +115,18 @@ def get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
 @view
 def get_underlying_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
     return self._get_decimals(_pool)
+
+@internal
+@view
+def _get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._pad_uint_array(self.base_registry.get_balances(_pool))
+
+@external
+@view
+def get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._get_balances(_pool)
+
+@external
+@view
+def get_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._get_balances(_pool)

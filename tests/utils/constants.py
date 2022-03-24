@@ -171,5 +171,5 @@ FXS_ETH_POOL = Pool(
         "0x0000000000000000000000000000000000000000",
     ),
     decimals=(18, 18, 0, 0, 0, 0, 0, 0),
-    underlying_decimals=(18, 8, 8, 18, 0, 0, 0, 0),
+    underlying_decimals=(18, 18, 0, 0, 0, 0, 0, 0),
 )
