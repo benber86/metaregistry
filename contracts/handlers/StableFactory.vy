@@ -42,7 +42,9 @@ interface ERC20:
     def decimals() -> uint256: view
     def totalSupply() -> uint256: view
 
-address_provider: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
+interface GaugeController:
+    def gauge_types(gauge: address) -> int128: view
+
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
 total_pools: public(uint256) 
@@ -50,12 +52,14 @@ admin: public(address)
 registry_index: uint256
 registry_id: uint256
 
+ADDRESS_PROVIDER: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
 BTC_BASE_POOL: constant(address) = 0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714
+GAUGE_CONTROLLER: constant(address) = 0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB
 
 @external
 def __init__(_metaregistry: address, _id: uint256):
     self.metaregistry = _metaregistry
-    self.base_registry = BaseRegistry(AddressProvider(address_provider).get_address(_id))
+    self.base_registry = BaseRegistry(AddressProvider(ADDRESS_PROVIDER).get_address(_id))
     self.registry_id = _id
     self.registry_index = MetaRegistry(_metaregistry).registry_length()
 
@@ -169,4 +173,16 @@ def get_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
         return self._get_btc_underlying_balances(_pool)
     return self.base_registry.get_underlying_balances(_pool)
 
+@external
+@view
+def get_lp_token(_pool: address) -> address:
+    return _pool
 
+@external
+@view
+def get_gauges(_pool: address) -> (address[10], int128[10]):
+    gauges: address[10] = empty(address[10])
+    types: int128[10] = empty(int128[10])
+    gauges[0] = self.base_registry.get_gauge(_pool)
+    types[0] = GaugeController(GAUGE_CONTROLLER).gauge_types(gauges[0])
+    return (gauges, types)

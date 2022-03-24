@@ -115,3 +115,35 @@ def test_balances_and_underlying_balances(metaregistry, pools):
         if underlying_decimals[i] > 0:
             assert underlying_balance > 0
     print(f"{pool} ({pool_type}): {underlying_balances}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_get_lp_token(metaregistry, pools):
+    pool_type, pool = pools
+    lp_token = metaregistry.get_lp_token(pool.address)
+    assert lp_token == pool.lp_token
+    print(f"{pool} ({pool_type}): {lp_token}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_get_gauges(metaregistry, pools):
+    pool_type, pool = pools
+    gauges = metaregistry.get_gauges(pool.address)
+    assert gauges == pool.gauges
+    print(f"{pool} ({pool_type}): {gauges}")

@@ -44,6 +44,8 @@ interface RegistryHandler:
     def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]: view
+    def get_lp_token(_pool: address) -> address: view
+    def get_gauges(_pool: address) -> (address[10], int128[10]): view
 
 
 registry_length: public(uint256)
@@ -244,5 +246,20 @@ def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]:
     assert registry_index > 0, "no registry"
     return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_underlying_balances(_pool)
 
+
+@external
+@view
+def get_lp_token(_pool: address) -> address:
+    registry_index: uint256 = self.internal_pool_registry[_pool]
+    assert registry_index > 0, "no registry"
+    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_lp_token(_pool)
+
+
+@external
+@view
+def get_gauges(_pool: address) -> (address[10], int128[10]):
+    registry_index: uint256 = self.internal_pool_registry[_pool]
+    assert registry_index > 0, "no registry"
+    return RegistryHandler(self.get_registry[registry_index - 1].registry_handler).get_gauges(_pool)
 
 

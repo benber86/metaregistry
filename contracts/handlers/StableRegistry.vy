@@ -14,7 +14,8 @@ interface BaseRegistry:
     def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]: view
-    def get_gauge(_pool: address) -> address: view
+    def get_gauges(_pool: address) -> (address[10], int128[10]): view
+    def get_lp_token(_pool: address) -> address: view
     def get_n_coins(_pool: address) -> uint256[2]: view
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
@@ -27,7 +28,6 @@ interface MetaRegistry:
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
 
-address_provider: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
 total_pools: public(uint256) 
@@ -35,10 +35,12 @@ registry_index: uint256
 registry_id: uint256
 
 
+ADDRESS_PROVIDER: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
+
 @external
 def __init__(_metaregistry: address, _id: uint256):
     self.metaregistry = _metaregistry
-    self.base_registry = BaseRegistry(AddressProvider(address_provider).get_address(_id))
+    self.base_registry = BaseRegistry(AddressProvider(ADDRESS_PROVIDER).get_address(_id))
     self.registry_id = _id
     self.registry_index = MetaRegistry(_metaregistry).registry_length()
 
@@ -131,3 +133,13 @@ def get_balances(_pool: address) -> uint256[MAX_COINS]:
 @view
 def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]:
     return self.base_registry.get_underlying_balances(_pool)
+
+@external
+@view
+def get_lp_token(_pool: address) -> address:
+    return self.base_registry.get_lp_token(_pool)
+
+@external
+@view
+def get_gauges(_pool: address) -> (address[10], int128[10]):
+    return self.base_registry.get_gauges(_pool)
