@@ -100,6 +100,23 @@ def is_registered(_pool: address) -> bool:
     return self.base_registry.get_n_coins(_pool) > 0
 
 @external
+def reset_pool_list():
+    """
+    @notice Removes all pools from the metaregistry
+    @dev To be called from the metaregistry
+    """
+    assert msg.sender == self.metaregistry
+    pool_count: uint256 = self.base_registry.pool_count()
+    last_pool: uint256 = self.total_pools
+    for i in range(MAX_POOLS):
+        if i == pool_count:
+            break
+        _pool: address = self.base_registry.pool_list(i)
+        MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, 0)
+        MetaRegistry(self.metaregistry).update_lp_token_mapping(ZERO_ADDRESS, _pool)
+    self.total_pools = 0
+
+@external
 def sync_pool_list():
     """
     @notice Records any newly added pool on the metaregistry

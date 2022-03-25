@@ -37,6 +37,7 @@ interface AddressProvider:
 
 interface RegistryHandler:
     def sync_pool_list(): nonpayable
+    def reset_pool_list(): nonpayable
     def get_coins(_pool: address) -> address[MAX_COINS]: view
     def get_A(_pool: address) -> uint256: view
     def get_D(_pool: address) -> uint256: view
@@ -191,8 +192,12 @@ def update_registry_addresses() -> uint256:
 @internal
 def _sync_registry(_index: uint256):
         registry: Registry = self.get_registry[_index]
-        if (registry.is_active):
-            RegistryHandler(registry.registry_handler).sync_pool_list()
+        RegistryHandler(registry.registry_handler).sync_pool_list()
+
+@internal
+def _reset_registry(_index: uint256):
+        registry: Registry = self.get_registry[_index]
+        RegistryHandler(registry.registry_handler).reset_pool_list()
 
 @external
 def sync_registry(_index: uint256):
@@ -204,6 +209,27 @@ def sync_registry(_index: uint256):
     assert _index < self.registry_length
     self._sync_registry(_index)
 
+@external
+def reset_registry(_index: uint256):
+    """
+    @notice Reset a particular registry
+    @param _index Registry index
+    """
+    assert msg.sender == self.admin  # dev: admin-only function
+    assert _index < self.registry_length
+    self._reset_registry(_index)
+
+@external
+def reset():
+    """
+    @notice Resets all registries
+    """
+    assert msg.sender == self.admin  # dev: admin-only function
+
+    for i in range(MAX_REGISTRIES):
+        if i == self.registry_length:
+            break
+        self._reset_registry(i)
 
 @external
 def sync():
