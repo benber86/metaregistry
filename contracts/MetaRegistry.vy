@@ -44,10 +44,12 @@ interface RegistryHandler:
     def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]: view
+    def get_admin_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_lp_token(_pool: address) -> address: view
     def get_gauges(_pool: address) -> (address[10], int128[10]): view
     def is_meta(_pool: address) -> bool: view
     def get_pool_name(_pool: address) -> String[64]: view
+    def get_fees(_pool: address) -> uint256[10]: view
 
 registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
@@ -259,4 +261,22 @@ def is_meta(_pool: address) -> bool:
 @view
 def get_pool_name(_pool: address) -> String[64]:
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_pool_name(_pool)
+
+@external
+@view
+def get_fees(_pool: address) -> uint256[10]:
+    """
+    @dev Fees are expressed as integers
+    @return Pool fee as uint256 with 1e10 precision
+            Admin fee as 1e10 percentage of pool fee
+            Mid fee
+            Out fee
+            6 blank spots for future use cases
+    """
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_fees(_pool)
+
+@external
+@view
+def get_admin_balances(_pool: address) -> uint256[MAX_COINS]:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_admin_balances(_pool)
 

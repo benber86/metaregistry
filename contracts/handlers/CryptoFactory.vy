@@ -19,6 +19,12 @@ interface BaseRegistry:
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
 
+interface CurvePool:
+    def fee() -> uint256: view
+    def mid_fee() -> uint256: view
+    def out_fee() -> uint256: view
+    def admin_fee() -> uint256: view
+
 interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
@@ -32,6 +38,7 @@ interface GaugeController:
 
 interface ERC20:
     def name() -> String[64]: view
+    def balanceOf(_addr: address) -> uint256: view
 
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
@@ -39,6 +46,7 @@ total_pools: public(uint256)
 registry_index: uint256
 registry_id: uint256
 
+N_COINS: constant(uint256) = 2
 ADDRESS_PROVIDER: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
 GAUGE_CONTROLLER: constant(address) = 0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB
 
@@ -107,7 +115,7 @@ def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
 @external
 @view
 def get_n_coins(_pool: address) -> uint256:
-    return 2
+    return N_COINS
 
 
 @internal
@@ -172,3 +180,26 @@ def get_pool_name(_pool: address) -> String[64]:
         return ERC20(self.base_registry.get_token(_pool)).name()
     else:
         return ""
+
+@external
+@view
+def get_fees(_pool: address) -> uint256[10]:
+    fees: uint256[10] = empty(uint256[10])
+    pool_fees: uint256[4] = [CurvePool(_pool).fee(), CurvePool(_pool).admin_fee(), CurvePool(_pool).mid_fee(), CurvePool(_pool).out_fee()]
+    for i in range(4):
+        fees[i] = pool_fees[i]
+    return fees
+
+@external
+@view
+def get_admin_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    balances: uint256[MAX_METAREGISTRY_COINS] = self._get_balances(_pool)
+    coins: address[MAX_METAREGISTRY_COINS] = self._get_coins(_pool)
+    for i in range(N_COINS):
+        coin: address = coins[i]
+        if (coin == 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE or coin == 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2):
+            balances[i] = _pool.balance - balances[i]
+        else:
+            balances[i] = ERC20(coin).balanceOf(_pool) - balances[i]
+    return balances
+

@@ -8,6 +8,7 @@ from .utils.constants import (
     MIM_METAPOOL,
     BBTC_METAPOOL,
 )
+from .abis import curve_pool, curve_pool_v2
 
 
 @pytest.mark.parametrize(
@@ -179,3 +180,50 @@ def test_get_pool_name(metaregistry, pools):
     pool_name = metaregistry.get_pool_name(pool.address)
     assert pool_name == pool.name
     print(f"{pool} ({pool_type}): {pool_name}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL, 1),
+        ("StableFactory", BBTC_METAPOOL, 1),
+        ("CryptoRegistry", TRICRYPTO_POOL, 2),
+        ("CryptoFactory", FXS_ETH_POOL, 2),
+    ],
+)
+def test_get_pool_fees(metaregistry, pools):
+    pool_type, pool, version = pools
+    pool_fees = metaregistry.get_fees(pool.address)
+    if version == 1:
+        contract = curve_pool(pool.address)
+        fees = [contract.fee(), contract.admin_fee()] + [0] * 8
+    else:
+        contract = curve_pool_v2(pool.address)
+        fees = [
+            contract.fee(),
+            contract.admin_fee(),
+            contract.mid_fee(),
+            contract.out_fee(),
+        ] + [0] * 6
+    assert pool_fees == fees
+    print(f"{pool} ({pool_type}): {pool_fees}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL, 1),
+        ("StableFactory", BBTC_METAPOOL, 1),
+        ("CryptoRegistry", TRICRYPTO_POOL, 2),
+        ("CryptoFactory", FXS_ETH_POOL, 2),
+    ],
+)
+def test_get_admin_balances(metaregistry, pools):
+    pool_type, pool, version = pools
+    pool_admin_balances = metaregistry.get_admin_balances(pool.address)
+    balances = metaregistry.get_balances(pool.address)
+    # TODO : verify actual amounts
+    for i, balance in enumerate(balances):
+        if balance > 0:
+            assert pool_admin_balances[i] >= 0
+    print(f"{pool} ({pool_type}): {pool_admin_balances}")
