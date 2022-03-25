@@ -20,15 +20,21 @@ interface BaseRegistry:
     def pool_list(pool_id: uint256) -> address: view
 
 interface CurvePool:
+    def A() -> uint256: view
+    def D() -> uint256: view
+    def gamma() -> uint256: view
     def fee() -> uint256: view
     def mid_fee() -> uint256: view
     def out_fee() -> uint256: view
     def admin_fee() -> uint256: view
+    def get_virtual_price() -> uint256: view
 
 interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
     def registry_length() -> uint256: view
+    def update_lp_token_mapping(_pool: address, _token: address): nonpayable
+    def get_pool_from_lp_token(_pool: address) -> address: view
 
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
@@ -69,6 +75,11 @@ def is_registered(_pool: address) -> bool:
     """
     return self.base_registry.get_n_coins(_pool) > 0
 
+@internal
+@view
+def _get_lp_token(_pool: address) -> address:
+    return self.base_registry.get_token(_pool)
+
 @external
 def sync_pool_list():
     """
@@ -81,7 +92,9 @@ def sync_pool_list():
     for i in range(last_pool, last_pool + MAX_POOLS):
         if i == pool_count:
             break
-        MetaRegistry(self.metaregistry).update_internal_pool_registry(self.base_registry.pool_list(i), self.registry_index + 1)
+        _pool: address = self.base_registry.pool_list(i)
+        MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
+        MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
         self.total_pools += 1
 
 @internal
@@ -148,11 +161,6 @@ def get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
 def get_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
     return self._get_balances(_pool)
 
-@internal
-@view
-def _get_lp_token(_pool: address) -> address:
-    return self.base_registry.get_token(_pool)
-
 @external
 @view
 def get_lp_token(_pool: address) -> address:
@@ -207,3 +215,23 @@ def get_admin_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
 @view
 def get_pool_asset_type(_pool: address) -> uint256:
     return 4
+
+@external
+@view
+def get_A(_pool: address) -> uint256:
+    return CurvePool(_pool).A()
+
+@external
+@view
+def get_D(_pool: address) -> uint256:
+    return CurvePool(_pool).D()
+
+@external
+@view
+def get_gamma(_pool: address) -> uint256:
+    return CurvePool(_pool).gamma()
+
+@external
+@view
+def get_virtual_price_from_lp_token(_token: address) -> uint256:
+    return CurvePool(MetaRegistry(self.metaregistry).get_pool_from_lp_token(_token)).get_virtual_price()

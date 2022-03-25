@@ -11,6 +11,7 @@ MAX_POOLS: constant(int128) = 128
 
 interface BaseRegistry:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
+    def get_A(_pool: address) -> uint256: view
     def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_underlying_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]: view
@@ -29,12 +30,14 @@ interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
     def registry_length() -> uint256: view
+    def update_lp_token_mapping(_pool: address, _token: address): nonpayable
 
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
 
 interface CurvePool:
     def balances(i: uint256) -> uint256: view
+    def get_virtual_price() -> uint256: view
 
 interface CurveLegacyPool:
     def balances(i: int128) -> uint256: view
@@ -108,7 +111,9 @@ def sync_pool_list():
     for i in range(last_pool, last_pool + MAX_POOLS):
         if i == pool_count:
             break
-        MetaRegistry(self.metaregistry).update_internal_pool_registry(self.base_registry.pool_list(i), self.registry_index + 1)
+        _pool: address = self.base_registry.pool_list(i)
+        MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
+        MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, _pool)
         self.total_pools += 1
 
 @internal
@@ -221,3 +226,23 @@ def get_admin_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
 @view
 def get_pool_asset_type(_pool: address) -> uint256:
     return self.base_registry.get_pool_asset_type(_pool)
+
+@external
+@view
+def get_A(_pool: address) -> uint256:
+    return self.base_registry.get_A(_pool)
+
+@external
+@view
+def get_D(_pool: address) -> uint256:
+    return 0
+
+@external
+@view
+def get_gamma(_pool: address) -> uint256:
+    return 0
+
+@external
+@view
+def get_virtual_price_from_lp_token(_token: address) -> uint256:
+    return CurvePool(_token).get_virtual_price()

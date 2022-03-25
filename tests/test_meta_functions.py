@@ -243,3 +243,54 @@ def test_get_pool_asset_type(metaregistry, pools):
     asset_type = metaregistry.get_pool_asset_type(pool.address)
     assert asset_type == pool.asset_type
     print(f"{pool} ({pool_type}): {asset_type}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL, 1),
+        ("StableFactory", BBTC_METAPOOL, 1),
+        ("CryptoRegistry", TRICRYPTO_POOL, 2),
+        ("CryptoFactory", FXS_ETH_POOL, 2),
+    ],
+)
+def test_get_pool_parameters(metaregistry, pools):
+    pool_type, pool, version = pools
+    a = metaregistry.get_A(pool.address)
+    d = metaregistry.get_D(pool.address)
+    gamma = metaregistry.get_gamma(pool.address)
+    assert a > 0
+    if version == 1:
+        assert d == 0
+        assert gamma == 0
+    else:
+        assert d > 0
+        assert gamma > 0
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL, 1),
+        ("StableFactory", BBTC_METAPOOL, 1),
+        ("CryptoRegistry", TRICRYPTO_POOL, 2),
+        ("CryptoFactory", FXS_ETH_POOL, 2),
+    ],
+)
+def test_get_pool_from_lp_token(metaregistry, pools):
+    pool_type, pool, version = pools
+    assert pool.address == metaregistry.get_pool_from_lp_token(pool.lp_token)
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL, 1),
+        ("StableFactory", BBTC_METAPOOL, 1),
+        ("CryptoRegistry", TRICRYPTO_POOL, 2),
+        ("CryptoFactory", FXS_ETH_POOL, 2),
+    ],
+)
+def test_get_virtual_price_from_lp_token(metaregistry, pools):
+    pool_type, pool, version = pools
+    assert metaregistry.get_virtual_price_from_lp_token(pool.lp_token) > 0

@@ -38,6 +38,9 @@ interface AddressProvider:
 interface RegistryHandler:
     def sync_pool_list(): nonpayable
     def get_coins(_pool: address) -> address[MAX_COINS]: view
+    def get_A(_pool: address) -> uint256: view
+    def get_D(_pool: address) -> uint256: view
+    def get_gamma(_pool: address) -> uint256: view
     def get_n_coins(_pool: address) -> uint256: view
     def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
@@ -47,6 +50,7 @@ interface RegistryHandler:
     def get_admin_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_pool_asset_type(_pool: address) -> uint256: view
     def get_lp_token(_pool: address) -> address: view
+    def get_virtual_price_from_lp_token(_token: address) -> uint256: view
     def get_gauges(_pool: address) -> (address[10], int128[10]): view
     def is_meta(_pool: address) -> bool: view
     def get_pool_name(_pool: address) -> String[64]: view
@@ -56,6 +60,7 @@ registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
 total_pools: uint256
 internal_pool_registry: public(HashMap[address, uint256])
+get_pool_from_lp_token: public(HashMap[address, address])
 authorized_registries: HashMap[address, bool]
 admin: public(address)
 address_provider: public(AddressProvider)
@@ -77,6 +82,17 @@ def update_address_provider(_provider: address):
     assert msg.sender == self.admin  # dev: admin-only function
     assert _provider != ZERO_ADDRESS  # dev: not to zero
     self.address_provider = AddressProvider(_provider)
+
+@external
+def update_lp_token_mapping(_pool: address, _token: address):
+    """
+    @notice Associate an LP token with a pool for reverse lookup
+    @dev Callback function used by the registry handlers when syncing
+    @param _pool Address of the pool
+    @param _token Address of the pool's LP token
+    """
+    assert self.authorized_registries[msg.sender]
+    self.get_pool_from_lp_token[_token] = _pool
 
 @external
 def update_internal_pool_registry(_pool: address, _incremented_index: uint256):
@@ -286,3 +302,22 @@ def get_admin_balances(_pool: address) -> uint256[MAX_COINS]:
 def get_pool_asset_type(_pool: address) -> uint256:
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_pool_asset_type(_pool)
 
+@external
+@view
+def get_A(_pool: address) -> uint256:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_A(_pool)
+
+@external
+@view
+def get_D(_pool: address) -> uint256:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_D(_pool)
+
+@external
+@view
+def get_gamma(_pool: address) -> uint256:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_gamma(_pool)
+
+@external
+@view
+def get_virtual_price_from_lp_token(_token: address) -> uint256:
+    return RegistryHandler(self._get_registry_handler_from_pool(self.get_pool_from_lp_token[_token])).get_virtual_price_from_lp_token(_token)

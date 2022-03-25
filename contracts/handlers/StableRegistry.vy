@@ -9,6 +9,7 @@ MAX_POOLS: constant(int128) = 128
 
 interface BaseRegistry:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
+    def get_A(_pool: address) -> uint256: view
     def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]: view
@@ -17,6 +18,7 @@ interface BaseRegistry:
     def get_admin_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_gauges(_pool: address) -> (address[10], int128[10]): view
     def get_lp_token(_pool: address) -> address: view
+    def get_virtual_price_from_lp_token(_token: address) -> uint256: view
     def get_pool_name(_pool: address) -> String[64]: view
     def get_pool_asset_type(_pool: address) -> uint256: view
     def get_n_coins(_pool: address) -> uint256[2]: view
@@ -29,6 +31,7 @@ interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
     def registry_length() -> uint256: view
+    def update_lp_token_mapping(_pool: address, _token: address): nonpayable
 
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
@@ -60,6 +63,11 @@ def is_registered(_pool: address) -> bool:
     """
     return self.base_registry.get_n_coins(_pool)[0] > 0
 
+@internal
+@view
+def _get_lp_token(_pool: address) -> address:
+    return self.base_registry.get_lp_token(_pool)
+
 @external
 def sync_pool_list():
     """
@@ -73,7 +81,9 @@ def sync_pool_list():
     for i in range(last_pool, last_pool + MAX_POOLS):
         if i == pool_count:
             break
-        MetaRegistry(self.metaregistry).update_internal_pool_registry(self.base_registry.pool_list(i), self.registry_index + 1)
+        _pool: address = self.base_registry.pool_list(i)
+        MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
+        MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
         self.total_pools += 1
 
 @external
@@ -86,6 +96,7 @@ def remove_pool(_pool: address):
     """
     assert msg.sender == self.metaregistry
     MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, 0)
+    MetaRegistry(self.metaregistry).update_lp_token_mapping(ZERO_ADDRESS, self._get_lp_token(_pool))
     self.total_pools -= 1
 
 @external
@@ -97,6 +108,7 @@ def add_pool(_pool: address):
     """
     assert msg.sender == self.metaregistry
     MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
+    MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
     self.total_pools -= 1
 
 
@@ -142,7 +154,7 @@ def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]:
 @external
 @view
 def get_lp_token(_pool: address) -> address:
-    return self.base_registry.get_lp_token(_pool)
+    return self._get_lp_token(_pool)
 
 @external
 @view
@@ -177,3 +189,23 @@ def get_admin_balances(_pool: address) -> uint256[MAX_COINS]:
 @view
 def get_pool_asset_type(_pool: address) -> uint256:
     return self.base_registry.get_pool_asset_type(_pool)
+
+@external
+@view
+def get_A(_pool: address) -> uint256:
+    return self.base_registry.get_A(_pool)
+
+@external
+@view
+def get_D(_pool: address) -> uint256:
+    return 0
+
+@external
+@view
+def get_gamma(_pool: address) -> uint256:
+    return 0
+
+@external
+@view
+def get_virtual_price_from_lp_token(_token: address) -> uint256:
+    return self.base_registry.get_virtual_price_from_lp_token(_token)
