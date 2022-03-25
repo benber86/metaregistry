@@ -173,3 +173,8 @@ def get_fees(_pool: address) -> uint256[10]:
 @view
 def get_admin_balances(_pool: address) -> uint256[MAX_COINS]:
     return self.base_registry.get_admin_balances(_pool)
+    
+@external
+@view
+def get_pool_asset_type(_pool: address) -> uint256:
+    return 4

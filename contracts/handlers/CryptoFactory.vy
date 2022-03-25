@@ -203,3 +203,7 @@ def get_admin_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
             balances[i] = ERC20(coin).balanceOf(_pool) - balances[i]
     return balances
 
+@external
+@view
+def get_pool_asset_type(_pool: address) -> uint256:
+    return 4

@@ -18,6 +18,7 @@ interface BaseRegistry:
     def get_gauges(_pool: address) -> (address[10], int128[10]): view
     def get_lp_token(_pool: address) -> address: view
     def get_pool_name(_pool: address) -> String[64]: view
+    def get_pool_asset_type(_pool: address) -> uint256: view
     def get_n_coins(_pool: address) -> uint256[2]: view
     def get_fees(_pool: address) -> uint256[2]: view
     def pool_count() -> uint256: view
@@ -171,3 +172,8 @@ def get_fees(_pool: address) -> uint256[10]:
 @view
 def get_admin_balances(_pool: address) -> uint256[MAX_COINS]:
     return self.base_registry.get_admin_balances(_pool)
+
+@external
+@view
+def get_pool_asset_type(_pool: address) -> uint256:
+    return self.base_registry.get_pool_asset_type(_pool)

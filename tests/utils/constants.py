@@ -17,6 +17,7 @@ class Pool:
     ]
     is_meta: bool
     name: str
+    asset_type: int
 
 
 LINK_POOL = Pool(
@@ -62,6 +63,7 @@ LINK_POOL = Pool(
     ),
     is_meta=False,
     name="link",
+    asset_type=3,
 )
 
 MIM_METAPOOL = Pool(
@@ -107,6 +109,7 @@ MIM_METAPOOL = Pool(
     ),
     is_meta=True,
     name="mim",
+    asset_type=0,
 )
 
 DYDX_STAKED_POOL = Pool(
@@ -152,6 +155,7 @@ DYDX_STAKED_POOL = Pool(
     ),
     is_meta=False,
     name="Curve.fi Factory Plain Pool: DYDX/stkDYDX",
+    asset_type=3,
 )
 
 BBTC_METAPOOL = Pool(
@@ -197,6 +201,7 @@ BBTC_METAPOOL = Pool(
     ),
     is_meta=True,
     name="Curve.fi Factory BTC Metapool: ibBTC",
+    asset_type=2,
 )
 
 TRICRYPTO_POOL = Pool(
@@ -242,6 +247,7 @@ TRICRYPTO_POOL = Pool(
     ),
     is_meta=False,
     name="tricrypto2",
+    asset_type=4,
 )
 
 FXS_ETH_POOL = Pool(
@@ -287,4 +293,5 @@ FXS_ETH_POOL = Pool(
     ),
     is_meta=False,
     name="Curve.fi Factory Crypto Pool: FXS/ETH",
+    asset_type=4,
 )

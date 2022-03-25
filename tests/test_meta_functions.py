@@ -227,3 +227,19 @@ def test_get_admin_balances(metaregistry, pools):
         if balance > 0:
             assert pool_admin_balances[i] >= 0
     print(f"{pool} ({pool_type}): {pool_admin_balances}")
+
+
+@pytest.mark.parametrize(
+    "pools",
+    [
+        ("StableRegistry", MIM_METAPOOL),
+        ("StableFactory", BBTC_METAPOOL),
+        ("CryptoRegistry", TRICRYPTO_POOL),
+        ("CryptoFactory", FXS_ETH_POOL),
+    ],
+)
+def test_get_pool_asset_type(metaregistry, pools):
+    pool_type, pool = pools
+    asset_type = metaregistry.get_pool_asset_type(pool.address)
+    assert asset_type == pool.asset_type
+    print(f"{pool} ({pool_type}): {asset_type}")
