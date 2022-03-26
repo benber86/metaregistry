@@ -14,14 +14,9 @@ struct Registry:
     description: String[64]
     is_active: bool
 
-struct Pool:
-    addr: address
-    categories: uint256
-    name: String[64]
-    lp_token: address
-    base_pool: address
-    coins: address[MAX_COINS]
-    underlying_coins: address[MAX_COINS]
+struct PoolInfo:
+    registry: uint256
+    location: uint256
 
 struct AddressInfo:
     addr: address
@@ -66,12 +61,13 @@ interface RegistryHandler:
 
 registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
-total_pools: uint256
-internal_pool_registry: public(HashMap[address, uint256])
+internal_pool_registry: public(HashMap[address, PoolInfo])
 get_pool_from_lp_token: public(HashMap[address, address])
 authorized_registries: HashMap[address, bool]
 admin: public(address)
 address_provider: public(AddressProvider)
+pool_count: uint256
+pool_list: public(address[65536])
 
 # mapping of coins -> pools for trading
 # a mapping key is generated for each pair of addresses via
@@ -245,7 +241,25 @@ def update_internal_pool_registry(_pool: address, _incremented_index: uint256):
     @param _incremented_index Index of the associated registry incremented by 1
     """
     assert self.authorized_registries[msg.sender]
-    self.internal_pool_registry[_pool] = _incremented_index
+    # if deletion
+    if _incremented_index == 0:
+        location: uint256 = self.internal_pool_registry[_pool].location
+        length: uint256 = self.pool_count - 1
+        if location < length:
+            # replace _pool with final value in pool_list
+            addr: address = self.pool_list[length]
+            self.pool_list[location] = addr
+            self.internal_pool_registry[addr].location = location
+
+        # delete final pool_list value
+        self.internal_pool_registry[_pool] = PoolInfo({registry: _incremented_index, location: 0})
+        self.pool_list[length] = ZERO_ADDRESS
+        self.pool_count = length
+        return
+
+    self.internal_pool_registry[_pool] = PoolInfo({registry: _incremented_index, location: self.pool_count})
+    self.pool_list[self.pool_count] = _pool
+    self.pool_count += 1
 
 @internal
 def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _registry_handler: address, _description: String[64], _is_active: bool):
@@ -389,7 +403,7 @@ def sync():
 @internal
 @view
 def _get_registry_handler_from_pool(_pool: address) -> address:
-    registry_index: uint256 = self.internal_pool_registry[_pool]
+    registry_index: uint256 = self.internal_pool_registry[_pool].registry
     assert registry_index > 0, "no registry"
     return self.get_registry[registry_index - 1].registry_handler
 
