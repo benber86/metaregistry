@@ -25,12 +25,15 @@ interface BaseRegistry:
     def is_meta(_pool: address) -> bool: view
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
+    def get_meta_n_coins(_pool: address) -> (uint256, uint256): view
 
 interface MetaRegistry:
     def admin() -> address: view
     def update_internal_pool_registry(_pool: address, _incremented_index: uint256): nonpayable
     def registry_length() -> uint256: view
     def update_lp_token_mapping(_pool: address, _token: address): nonpayable
+    def update_coin_map(_pool: address, _coin_list: address[MAX_METAREGISTRY_COINS], _n_coins: uint256): nonpayable
+    def update_coin_map_for_underlying(_pool: address, _coins: address[MAX_METAREGISTRY_COINS], _underlying_coins: address[MAX_METAREGISTRY_COINS], _n_coins: uint256): nonpayable
 
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
@@ -89,6 +92,36 @@ def _get_btc_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COI
             underlying_balances[i + 1] = CurveLegacyPool(BTC_BASE_POOL).balances(i) * underlying_pct / 10**36
     return underlying_balances
 
+@internal
+@view
+def _is_meta(_pool: address) -> bool:
+    return self.base_registry.is_meta(_pool)
+
+@internal
+@view
+def _get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
+    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_coins[i] = _coins[i]
+    return _padded_coins
+
+@internal
+@view
+def _get_n_coins(_pool: address) -> uint256:
+    if self._is_meta(_pool):
+        return 2
+    return self.base_registry.get_n_coins(_pool)
+
+@internal
+@view
+def _get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    _coins: address[MAX_COINS] = self.base_registry.get_underlying_coins(_pool)
+    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_coins[i] = _coins[i]
+    return _padded_coins
+
 @external
 @view
 def is_registered(_pool: address) -> bool:
@@ -117,20 +150,28 @@ def reset_pool_list():
     self.total_pools = 0
 
 @external
-def sync_pool_list():
+def sync_pool_list(_limit: uint256):
     """
     @notice Records any newly added pool on the metaregistry
     @dev To be called from the metaregistry
+    @param _limit Maximum number of pool to sync (avoid hitting gas limit), 0 = no limits
     """
     assert msg.sender == self.metaregistry
-    pool_count: uint256 = self.base_registry.pool_count()
     last_pool: uint256 = self.total_pools
+    pool_cap: uint256 = self.base_registry.pool_count()
+    if (_limit > 0):
+        pool_cap = min((last_pool + _limit), pool_cap)
     for i in range(last_pool, last_pool + MAX_POOLS):
-        if i == pool_count:
+        if i == pool_cap:
             break
         _pool: address = self.base_registry.pool_list(i)
         MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
         MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, _pool)
+        MetaRegistry(self.metaregistry).update_coin_map(_pool, self._get_coins(_pool), self._get_n_coins(_pool))
+
+        if self._is_meta(_pool):
+            MetaRegistry(self.metaregistry).update_coin_map_for_underlying(_pool, self._get_coins(_pool), self._get_underlying_coins(_pool), self._get_n_coins(_pool))
+
         self.total_pools += 1
 
 @internal
@@ -141,31 +182,28 @@ def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COIN
         _padded_array[i] = _array[i]
     return _padded_array
 
+
 @external
 @view
 def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
-    _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
-    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
-    for i in range(MAX_COINS):
-        _padded_coins[i] = _coins[i]
-    return _padded_coins
+    return self._get_coins(_pool)
 
 
 @external
 @view
 def get_n_coins(_pool: address) -> uint256:
-    return self.base_registry.get_n_coins(_pool)
+    return self._get_n_coins(_pool)
 
 
 @external
 @view
-def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
-    _coins: address[MAX_COINS] = self.base_registry.get_underlying_coins(_pool)
-    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
-    for i in range(MAX_COINS):
-        _padded_coins[i] = _coins[i]
-    return _padded_coins
+def get_n_underlying_coins(_pool: address) -> uint256:
+    return self.base_registry.get_meta_n_coins(_pool)[1]
 
+@external
+@view
+def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    return self._get_underlying_coins(_pool)
 
 @external
 @view
@@ -190,7 +228,7 @@ def get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
 @external
 @view
 def get_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
-    if not (self.base_registry.is_meta(_pool)):
+    if not (self._is_meta(_pool)):
         return self._get_balances(_pool)
     if (self.base_registry.get_pool_asset_type(_pool) == 2):
         # some metapools (BTC) do not have a base_pool attribute so some registry functions 
@@ -215,7 +253,7 @@ def get_gauges(_pool: address) -> (address[10], int128[10]):
 @external
 @view
 def is_meta(_pool: address) -> bool:
-    return self.base_registry.is_meta(_pool)
+    return self._is_meta(_pool)
 
 @external
 @view

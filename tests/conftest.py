@@ -1,4 +1,5 @@
 import pytest
+import math
 from brownie import (
     interface,
     MetaRegistry,
@@ -7,6 +8,8 @@ from brownie import (
     StableFactory,
     CryptoFactory,
 )
+
+from .abis import stable_registry, stable_factory, crypto_factory, crypto_registry
 
 
 @pytest.fixture(scope="session")
@@ -81,4 +84,18 @@ def sync_registries(
     crypto_registry_handler,
     owner,
 ):
-    metaregistry.sync({"from": owner})
+    registries = [
+        stable_factory(),
+        stable_registry(),
+        crypto_factory(),
+        crypto_registry(),
+    ]
+    # split the initial syncs to avoid hitting gas limit
+    for i in range(metaregistry.registry_length()):
+        registry = registries[i]
+        total_pools = registry.pool_count()
+        for j in range(math.ceil(total_pools / 10)):
+            print(
+                f"Syncing {j} * 10 ({j * 10}) pools out of {total_pools} for registry {i}"
+            )
+            metaregistry.sync_registry(i, 10, {"from": owner})

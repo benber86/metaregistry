@@ -35,6 +35,7 @@ interface MetaRegistry:
     def registry_length() -> uint256: view
     def update_lp_token_mapping(_pool: address, _token: address): nonpayable
     def get_pool_from_lp_token(_pool: address) -> address: view
+    def update_coin_map(_pool: address, _coin_list: address[MAX_METAREGISTRY_COINS], _n_coins: uint256): nonpayable
 
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
@@ -77,6 +78,15 @@ def is_registered(_pool: address) -> bool:
 
 @internal
 @view
+def _get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
+    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_coins[i] = _coins[i]
+    return _padded_coins
+
+@internal
+@view
 def _get_lp_token(_pool: address) -> address:
     return self.base_registry.get_token(_pool)
 
@@ -98,20 +108,24 @@ def reset_pool_list():
     self.total_pools = 0
 
 @external
-def sync_pool_list():
+def sync_pool_list(_limit: uint256):
     """
     @notice Records any newly added pool on the metaregistry
+    @param _limit Maximum number of pool to sync (avoid hitting gas limit), 0 = no limits
     @dev To be called from the metaregistry
     """
     assert msg.sender == self.metaregistry
-    pool_count: uint256 = self.base_registry.pool_count()
     last_pool: uint256 = self.total_pools
+    pool_cap: uint256 = self.base_registry.pool_count()
+    if (_limit > 0):
+        pool_cap = min((last_pool + _limit), pool_cap)
     for i in range(last_pool, last_pool + MAX_POOLS):
-        if i == pool_count:
+        if i == pool_cap:
             break
         _pool: address = self.base_registry.pool_list(i)
         MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
         MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
+        MetaRegistry(self.metaregistry).update_coin_map(_pool, self._get_coins(_pool), N_COINS)
         self.total_pools += 1
 
 @internal
@@ -122,16 +136,6 @@ def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COIN
         _padded_array[i] = _array[i]
     return _padded_array
 
-
-@internal
-@view
-def _get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
-    _coins: address[MAX_COINS] = self.base_registry.get_coins(_pool)
-    _padded_coins: address[MAX_METAREGISTRY_COINS] = empty(address[MAX_METAREGISTRY_COINS])
-    for i in range(MAX_COINS):
-        _padded_coins[i] = _coins[i]
-    return _padded_coins
-
 @external
 @view
 def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
@@ -141,6 +145,11 @@ def get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
 @view
 def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
     return self._get_coins(_pool)
+
+@external
+@view
+def get_n_underlying_coins(_pool: address) -> uint256:
+    return N_COINS
 
 @external
 @view
