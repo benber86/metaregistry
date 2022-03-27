@@ -94,7 +94,7 @@ def sync_registries(
     for i in range(metaregistry.registry_length()):
         registry = registries[i]
         total_pools = registry.pool_count()
-        for j in range(math.ceil(total_pools / 10)):
+        for j in range((math.ceil(total_pools / 10))):
             print(
                 f"Syncing {j} * 10 ({j * 10}) pools out of {total_pools} for registry {i}"
             )
