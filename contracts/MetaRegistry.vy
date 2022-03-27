@@ -40,6 +40,7 @@ interface RegistryHandler:
     def sync_pool_list(_limit: uint256): nonpayable
     def reset_pool_list(): nonpayable
     def get_coins(_pool: address) -> address[MAX_COINS]: view
+    def get_base_pool(_pool: address) -> address: view
     def get_A(_pool: address) -> uint256: view
     def get_D(_pool: address) -> uint256: view
     def get_gamma(_pool: address) -> uint256: view
@@ -510,3 +511,21 @@ def get_gamma(_pool: address) -> uint256:
 def get_virtual_price_from_lp_token(_token: address) -> uint256:
     return RegistryHandler(self._get_registry_handler_from_pool(self.get_pool_from_lp_token[_token])).get_virtual_price_from_lp_token(_token)
 
+@view
+@external
+def find_pool_for_coins(_from: address, _to: address, i: uint256 = 0) -> address:
+    """
+    @notice Find an available pool for exchanging two coins
+    @param _from Address of coin to be sent
+    @param _to Address of coin to be received
+    @param i Index value. When multiple pools are available
+            this value is used to return the n'th address.
+    @return Pool address
+    """
+    key: uint256 = bitwise_xor(convert(_from, uint256), convert(_to, uint256))
+    return self.markets[key][i]
+
+@external
+@view
+def get_base_pool(_pool: address) -> address:
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_base_pool(_pool)
