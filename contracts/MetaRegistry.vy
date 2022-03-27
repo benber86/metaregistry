@@ -411,61 +411,128 @@ def _get_registry_handler_from_pool(_pool: address) -> address:
 @external
 @view
 def get_coins(_pool: address) -> address[MAX_COINS]:
+    """
+    @notice Get the coins within a pool
+    @dev For metapools, these are the wrapped coin addresses
+    @param _pool Pool address
+    @return List of coin addresses
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_coins(_pool)
 
 @external
 @view
 def get_n_coins(_pool: address) -> uint256:
+    """
+    @notice Get the number of coins in a pool
+    @dev For metapools, it is tokens + wrapping/lending token (no underlying)
+    @param _pool Pool address
+    @return Number of coins
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_n_coins(_pool)
 
 @external
 @view
 def get_n_underlying_coins(_pool: address) -> uint256:
+    """
+    @notice Get the number of underlying coins in a pool
+    @dev For non metapools, returns the same as get_n_coins
+    @param _pool Pool address
+    @return Number of coins
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_n_underlying_coins(_pool)
 
 @external
 @view
 def get_underlying_coins(_pool: address) -> address[MAX_COINS]:
+    """
+    @notice Get the underlying coins within a pool
+    @dev For non metapools, returns the same value as `get_coins`
+    @param _pool Pool address
+    @return List of coin addresses
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_coins(_pool)
 
 @external
 @view
 def get_decimals(_pool: address) -> uint256[MAX_COINS]:
+    """
+    @notice Get decimal places for each coin within a pool
+    @dev For metapools, these are the wrapped coin decimal places
+    @param _pool Pool address
+    @return uint256 list of decimals
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_decimals(_pool)
 
 @external
 @view
 def get_underlying_decimals(_pool: address) -> uint256[MAX_COINS]:
+    """
+    @notice Get decimal places for each underlying coin within a pool
+    @dev For non metapools, returns the same value as `get_decimals`
+    @param _pool Pool address
+    @return uint256 list of decimals
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_decimals(_pool)
 
 @external
 @view
 def get_balances(_pool: address) -> uint256[MAX_COINS]:
+    """
+    @notice Get balances for each coin within a pool
+    @dev For metapools, these are the wrapped coin balances
+    @param _pool Pool address
+    @return uint256 list of balances
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_balances(_pool)
 
 @external
 @view
 def get_underlying_balances(_pool: address) -> uint256[MAX_COINS]:
+    """
+    @notice Get balances for each underlying coin within a pool
+    @dev For non metapools, returns the same value as `get_balances`
+    @param _pool Pool address
+    @return uint256 list of underlyingbalances
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_balances(_pool)
 
 @external
 @view
 def get_lp_token(_pool: address) -> address:
+    """
+    @notice Get the address of the LP token of a pool
+    @return Address of the LP token
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_lp_token(_pool)
 
 @external
 @view
 def get_gauges(_pool: address) -> (address[10], int128[10]):
+    """
+    @notice Get a list of LiquidityGauge contracts associated with a pool
+    @param _pool Pool address
+    @return address[10] of gauge addresses, int128[10] of gauge types
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_gauges(_pool)
 
 @external
 @view
 def is_meta(_pool: address) -> bool:
+    """
+    @notice Verify `_pool` is a metapool
+    @param _pool Pool address
+    @return True if `_pool` is a metapool
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).is_meta(_pool)
 
 @external
 @view
 def get_pool_name(_pool: address) -> String[64]:
+    """
+    @notice Get the given name for a pool
+    @param _pool Pool address
+    @return The name of a pool
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_pool_name(_pool)
 
 @external
@@ -484,31 +551,61 @@ def get_fees(_pool: address) -> uint256[10]:
 @external
 @view
 def get_admin_balances(_pool: address) -> uint256[MAX_COINS]:
+    """
+    @notice Get the current admin balances (uncollected fees) for a pool
+    @param _pool Pool address
+    @return List of uint256 admin balances
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_admin_balances(_pool)
 
 @external
 @view
 def get_pool_asset_type(_pool: address) -> uint256:
+    """
+    @notice Query the asset type of `_pool`
+    @param _pool Pool Address
+    @return The asset type as an unstripped string
+    @dev 0 : USD, 1: ETH, 2: BTC, 3: Other, 4: CryptoSwap
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_pool_asset_type(_pool)
 
 @external
 @view
 def get_A(_pool: address) -> uint256:
+    """
+    @notice Return A parameter
+    @return uint256 A value
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_A(_pool)
 
 @external
 @view
 def get_D(_pool: address) -> uint256:
+    """
+    @notice Return D parameter for v2 pools
+    @dev Returns 0 for v1 pools
+    @return uint256 D value
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_D(_pool)
 
 @external
 @view
 def get_gamma(_pool: address) -> uint256:
+    """
+    @notice Return gamma parameter for v2 pools
+    @dev Returns 0 for v1 pools
+    @return uint256 Gamma value
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_gamma(_pool)
 
 @external
 @view
 def get_virtual_price_from_lp_token(_token: address) -> uint256:
+    """
+    @notice Get the virtual price of a pool LP token
+    @param _token LP token address
+    @return uint256 Virtual price
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(self.get_pool_from_lp_token[_token])).get_virtual_price_from_lp_token(_token)
 
 @view
@@ -528,5 +625,32 @@ def find_pool_for_coins(_from: address, _to: address, i: uint256 = 0) -> address
 @external
 @view
 def get_base_pool(_pool: address) -> address:
+    """
+    @notice Get the base pool for a given factory metapool
+    @dev Will return ZERO_ADDRESS if pool is not a metapool
+    @param _pool Metapool address
+    @return Address of base pool
+    """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_base_pool(_pool)
 
+@view
+@external
+def get_coin_swap_count(_coin: address) -> uint256:
+    """
+    @notice Get the number of unique coins available to swap `_coin` against
+    @param _coin Coin address
+    @return The number of unique coins available to swap for
+    """
+    return self.coins[_coin].swap_count
+
+@view
+@external
+def get_coin_swap_complement(_coin: address, _index: uint256) -> address:
+    """
+    @notice Get the coin available to swap against `_coin` at `_index`
+    @param _coin Coin address
+    @param _index An index in the `_coin`'s set of available counter
+        coin's
+    @return Address of a coin available to swap against `_coin`
+    """
+    return self.coins[_coin].swap_for[_index]
