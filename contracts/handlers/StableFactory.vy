@@ -202,6 +202,8 @@ def get_n_underlying_coins(_pool: address) -> uint256:
 @external
 @view
 def get_underlying_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
+    if not (self._is_meta(_pool)):
+        return self._get_coins(_pool)
     return self._get_underlying_coins(_pool)
 
 @external
