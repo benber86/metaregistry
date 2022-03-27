@@ -38,6 +38,9 @@ interface MetaRegistry:
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
 
+interface CurvePool:
+    def base_pool() -> address: view
+
 metaregistry: public(address)
 base_registry: public(BaseRegistry)
 total_pools: public(uint256) 
@@ -253,6 +256,13 @@ def get_D(_pool: address) -> uint256:
 @view
 def get_gamma(_pool: address) -> uint256:
     return 0
+
+@external
+@view
+def get_base_pool(_pool: address) -> address:
+    if not(self._is_meta(_pool)):
+        return ZERO_ADDRESS
+    return CurvePool(_pool).base_pool()
 
 @external
 @view

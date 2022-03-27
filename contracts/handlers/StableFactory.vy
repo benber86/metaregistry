@@ -25,6 +25,7 @@ interface BaseRegistry:
     def is_meta(_pool: address) -> bool: view
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
+    def get_base_pool(_pool: address) -> address: view
     def get_meta_n_coins(_pool: address) -> (uint256, uint256): view
 
 interface MetaRegistry:
@@ -296,6 +297,15 @@ def get_D(_pool: address) -> uint256:
 @view
 def get_gamma(_pool: address) -> uint256:
     return 0
+
+@external
+@view
+def get_base_pool(_pool: address) -> address:
+    if not (self._is_meta(_pool)):
+        return ZERO_ADDRESS
+    if (self.base_registry.get_pool_asset_type(_pool) == 2):
+        return BTC_BASE_POOL
+    return self.base_registry.get_base_pool(_pool)
 
 @external
 @view

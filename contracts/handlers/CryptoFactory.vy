@@ -259,5 +259,10 @@ def get_gamma(_pool: address) -> uint256:
 
 @external
 @view
+def get_base_pool(_pool: address) -> address:
+    return ZERO_ADDRESS
+
+@external
+@view
 def get_virtual_price_from_lp_token(_token: address) -> uint256:
     return CurvePool(MetaRegistry(self.metaregistry).get_pool_from_lp_token(_token)).get_virtual_price()
