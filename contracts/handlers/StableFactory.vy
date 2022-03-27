@@ -82,7 +82,6 @@ def _get_btc_underlying_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COI
     @param _pool Metapool address
     @return uint256 list of underlying balances
     """
-
     underlying_balances: uint256[MAX_METAREGISTRY_COINS] = empty(uint256[MAX_METAREGISTRY_COINS])
     underlying_balances[0] = CurvePool(_pool).balances(0)
 
@@ -182,7 +181,6 @@ def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COIN
     for i in range(MAX_COINS):
         _padded_array[i] = _array[i]
     return _padded_array
-
 
 @external
 @view
@@ -311,3 +309,4 @@ def get_base_pool(_pool: address) -> address:
 @view
 def get_virtual_price_from_lp_token(_token: address) -> uint256:
     return CurvePool(_token).get_virtual_price()
+

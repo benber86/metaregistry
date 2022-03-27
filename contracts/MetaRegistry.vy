@@ -67,7 +67,7 @@ get_pool_from_lp_token: public(HashMap[address, address])
 authorized_registries: HashMap[address, bool]
 admin: public(address)
 address_provider: public(AddressProvider)
-pool_count: uint256
+pool_count: public(uint256)
 pool_list: public(address[65536])
 
 # mapping of coins -> pools for trading
@@ -529,3 +529,4 @@ def find_pool_for_coins(_from: address, _to: address, i: uint256 = 0) -> address
 @view
 def get_base_pool(_pool: address) -> address:
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_base_pool(_pool)
+
