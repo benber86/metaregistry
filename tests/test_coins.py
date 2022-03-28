@@ -9,8 +9,9 @@ from .utils.constants import ADDRESS_ZERO
 def test_find_coins(metaregistry):
     pool_count = metaregistry.pool_count()
     # test on a random subset of 10 pools
-    for i in range(10):
-        pool_index = random.randint(1, pool_count) - 1
+    # for i in range(10):
+    #    pool_index = random.randint(1, pool_count) - 1
+    for pool_index in range(pool_count):
         pool = metaregistry.pool_list(pool_index)
 
         pool_coins = [
@@ -28,7 +29,9 @@ def test_find_coins(metaregistry):
             all_combinations = all_combinations + [
                 (pool_coins[0], coin) for coin in underlying_coins
             ]
-        print(f"Found {len(all_combinations)} combination for pool: {pool} ({i}/10)")
+        print(
+            f"Found {len(all_combinations)} combination for pool: {pool} ({pool_index}/{pool_count})"
+        )
         for combination in all_combinations:
             registered = False
             for j in range(pool_count):
