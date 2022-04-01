@@ -8,6 +8,9 @@ MAX_METAREGISTRY_COINS: constant(int128) = 8
 MAX_COINS: constant(int128) = 2
 MAX_POOLS: constant(int128) = 128
 
+struct PoolInfo:
+    registry: uint256
+    location: uint256
 
 interface BaseRegistry:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
@@ -36,6 +39,7 @@ interface MetaRegistry:
     def update_lp_token_mapping(_pool: address, _token: address): nonpayable
     def get_pool_from_lp_token(_pool: address) -> address: view
     def update_coin_map(_pool: address, _coin_list: address[MAX_METAREGISTRY_COINS], _n_coins: uint256): nonpayable
+    def pool_to_registry(_pool: address) -> PoolInfo: view
 
 interface AddressProvider:
     def get_address(_id: uint256) -> address: view
@@ -123,10 +127,15 @@ def sync_pool_list(_limit: uint256):
         if i == pool_cap:
             break
         _pool: address = self.base_registry.pool_list(i)
+
+        self.total_pools += 1
+        # if the pool has already been added by another registry, we leave it with the original
+        if MetaRegistry(self.metaregistry).pool_to_registry(_pool).registry > 0:
+            continue
+
         MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
         MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
         MetaRegistry(self.metaregistry).update_coin_map(_pool, self._get_coins(_pool), N_COINS)
-        self.total_pools += 1
 
 @internal
 @view
