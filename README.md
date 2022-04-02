@@ -6,3 +6,4 @@
 - Add categorization scheme and query for pools
 - Add `get_coin_indices` 
 - Speed up test set up
+- Fix / improve the `is_active` logic for registries
