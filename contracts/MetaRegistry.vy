@@ -62,7 +62,7 @@ interface RegistryHandler:
 
 registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
-internal_pool_registry: public(HashMap[address, PoolInfo])
+pool_to_registry: public(HashMap[address, PoolInfo])
 get_pool_from_lp_token: public(HashMap[address, address])
 authorized_registries: HashMap[address, bool]
 admin: public(address)
@@ -244,21 +244,21 @@ def update_internal_pool_registry(_pool: address, _incremented_index: uint256):
     assert self.authorized_registries[msg.sender]
     # if deletion
     if _incremented_index == 0:
-        location: uint256 = self.internal_pool_registry[_pool].location
+        location: uint256 = self.pool_to_registry[_pool].location
         length: uint256 = self.pool_count - 1
         if location < length:
             # replace _pool with final value in pool_list
             addr: address = self.pool_list[length]
             self.pool_list[location] = addr
-            self.internal_pool_registry[addr].location = location
+            self.pool_to_registry[addr].location = location
 
         # delete final pool_list value
-        self.internal_pool_registry[_pool] = PoolInfo({registry: _incremented_index, location: 0})
+        self.pool_to_registry[_pool] = PoolInfo({registry: _incremented_index, location: 0})
         self.pool_list[length] = ZERO_ADDRESS
         self.pool_count = length
         return
 
-    self.internal_pool_registry[_pool] = PoolInfo({registry: _incremented_index, location: self.pool_count})
+    self.pool_to_registry[_pool] = PoolInfo({registry: _incremented_index, location: self.pool_count})
     self.pool_list[self.pool_count] = _pool
     self.pool_count += 1
 
@@ -404,7 +404,7 @@ def sync():
 @internal
 @view
 def _get_registry_handler_from_pool(_pool: address) -> address:
-    registry_index: uint256 = self.internal_pool_registry[_pool].registry
+    registry_index: uint256 = self.pool_to_registry[_pool].registry
     assert registry_index > 0, "no registry"
     return self.get_registry[registry_index - 1].registry_handler
 
