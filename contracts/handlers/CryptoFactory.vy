@@ -166,7 +166,6 @@ def get_n_underlying_coins(_pool: address) -> uint256:
 def get_n_coins(_pool: address) -> uint256:
     return N_COINS
 
-
 @internal
 @view
 def _get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
@@ -279,6 +278,6 @@ def get_virtual_price_from_lp_token(_token: address) -> uint256:
 
 @view
 @external
-def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
+def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool):
     indices: uint256[2] = self.base_registry.get_coin_indices(_pool, _from, _to)
-    return [indices[0], indices[1], 0]
+    return convert(indices[0], int128), convert(indices[1], int128), False

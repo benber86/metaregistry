@@ -125,7 +125,6 @@ def sync_pool_list(_limit: uint256):
         MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
         MetaRegistry(self.metaregistry).update_coin_map(_pool, self._get_coins(_pool), self._get_n_coins(_pool))
 
-
 @external
 def remove_pool(_pool: address):
     """
@@ -263,6 +262,6 @@ def get_virtual_price_from_lp_token(_token: address) -> uint256:
 
 @view
 @external
-def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
+def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool):
     indices: uint256[2] = self.base_registry.get_coin_indices(_pool, _from, _to)
-    return [indices[0], indices[1], 0]
+    return convert(indices[0], int128), convert(indices[1], int128), False

@@ -30,7 +30,7 @@ interface BaseRegistry:
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
     def is_meta(_pool: address) -> bool: view
-    def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]: view
+    def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool): view
 
 interface MetaRegistry:
     def admin() -> address: view
@@ -62,8 +62,6 @@ def __init__(_metaregistry: address, _id: uint256):
     self.base_registry = BaseRegistry(AddressProvider(ADDRESS_PROVIDER).get_address(_id))
     self.registry_id = _id
     self.registry_index = MetaRegistry(_metaregistry).registry_length()
-
-
 
 @internal
 @view
@@ -147,7 +145,6 @@ def sync_pool_list(_limit: uint256):
         if self._is_meta(_pool):
             MetaRegistry(self.metaregistry).update_coin_map_for_underlying(_pool, self._get_coins(_pool), self._get_underlying_coins(_pool), self._get_n_coins(_pool))
 
-
 @external
 def remove_pool(_pool: address):
     """
@@ -172,7 +169,6 @@ def add_pool(_pool: address):
     MetaRegistry(self.metaregistry).update_internal_pool_registry(_pool, self.registry_index + 1)
     MetaRegistry(self.metaregistry).update_lp_token_mapping(_pool, self._get_lp_token(_pool))
     self.total_pools -= 1
-
 
 @external
 @view
@@ -282,5 +278,5 @@ def get_virtual_price_from_lp_token(_token: address) -> uint256:
 
 @view
 @external
-def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
+def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool):
     return self.base_registry.get_coin_indices(_pool, _from, _to)

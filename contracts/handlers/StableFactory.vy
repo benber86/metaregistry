@@ -183,7 +183,6 @@ def sync_pool_list(_limit: uint256):
         if self._is_meta(_pool):
             MetaRegistry(self.metaregistry).update_coin_map_for_underlying(_pool, self._get_coins(_pool), self._get_underlying_coins(_pool), self._get_n_coins(_pool))
 
-
 @internal
 @view
 def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COINS]:
@@ -324,9 +323,5 @@ def get_virtual_price_from_lp_token(_token: address) -> uint256:
 
 @view
 @external
-def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
-    i: int128 = 0
-    j: int128 = 0
-    meta: bool = False
-    i, j, meta = self.base_registry.get_coin_indices(_pool, _from, _to)
-    return [convert(i, uint256), convert(j, uint256), convert(meta, uint256)]
+def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool):
+    return self.base_registry.get_coin_indices(_pool, _from, _to)
