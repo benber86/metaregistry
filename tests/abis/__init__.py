@@ -7,34 +7,46 @@ from ..utils.constants import (
     STABLE_REGISTRY,
     CRYPTO_REGISTRY,
     CRYPTO_FACTORY,
+    GAUGE_CONTROLLER,
 )
 
 with open(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "CurvePool.json"), "r"
 ) as fp:
     CURVE_V1_ABI = json.load(fp)
+
 with open(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "CurvePoolV2.json"), "r"
 ) as fp:
     CURVE_V2_ABI = json.load(fp)
+
 with open(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "CryptoFactory.json"), "r"
 ) as fp:
     CRYPTO_FACTORY_ABI = json.load(fp)
+
 with open(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "CryptoRegistry.json"),
     "r",
 ) as fp:
     CRYPTO_REGISTRY_ABI = json.load(fp)
+
 with open(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "StableRegistry.json"),
     "r",
 ) as fp:
     STABLE_REGISTRY_ABI = json.load(fp)
+
 with open(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "StableFactory.json"), "r"
 ) as fp:
     STABLE_FACTORY_ABI = json.load(fp)
+
+with open(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "GaugeController.json"),
+    "r",
+) as fp:
+    GAUGE_CONTROLLER_ABI = json.load(fp)
 
 
 def curve_pool(_pool: str) -> Contract:
@@ -66,4 +78,12 @@ def stable_factory() -> Contract:
 def stable_registry() -> Contract:
     return Contract.from_abi(
         name="Curve Stable Registry", address=STABLE_REGISTRY, abi=STABLE_REGISTRY_ABI
+    )
+
+
+def gauge_controller() -> Contract:
+    return Contract.from_abi(
+        name="Curve Gauge Controller",
+        address=GAUGE_CONTROLLER,
+        abi=GAUGE_CONTROLLER_ABI,
     )

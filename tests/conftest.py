@@ -1,5 +1,6 @@
 import pytest
 import math
+import time
 from brownie import (
     interface,
     MetaRegistry,
@@ -96,6 +97,15 @@ def sync_registries(
         total_pools = registry.pool_count()
         for j in range((math.ceil(total_pools / 10))):
             print(
-                f"Syncing {j} * 10 ({j * 10}) pools out of {total_pools} for registry {i}"
+                f"Syncing {j+1} * 10 ({(j+1) * 10}) pools out of {total_pools} for registry {i}"
             )
-            metaregistry.sync_registry(i, 10, {"from": owner})
+            try:
+                metaregistry.sync_registry(i, 10, {"from": owner})
+            except Exception as e:
+                print(f"Error 1: {e}\n Retrying")
+                try:
+                    metaregistry.sync_registry(i, 10, {"from": owner})
+                except Exception as e:
+                    print(f"Error 2: {e}\n Retrying")
+                    time.wait(10)
+                    metaregistry.sync_registry(i, 10, {"from": owner})
