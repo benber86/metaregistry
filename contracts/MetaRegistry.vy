@@ -59,6 +59,7 @@ interface RegistryHandler:
     def get_pool_name(_pool: address) -> String[64]: view
     def get_fees(_pool: address) -> uint256[10]: view
     def get_n_underlying_coins(_pool: address) -> uint256: view
+    def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]: view
 
 registry_length: public(uint256)
 get_registry: public(HashMap[uint256, Registry])
@@ -654,3 +655,16 @@ def get_coin_swap_complement(_coin: address, _index: uint256) -> address:
     @return Address of a coin available to swap against `_coin`
     """
     return self.coins[_coin].swap_for[_index]
+
+
+@view
+@external
+def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
+    """
+    @notice Convert coin addresses to indices for use with pool methods
+    @param _pool Pool address
+    @param _from Coin address to be used as `i` within a pool
+    @param _to Coin address to be used as `j` within a pool
+    @return from index, to index, is the market underlying ? as uint256[3]
+    """
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_coin_indices(_pool, _from, _to)

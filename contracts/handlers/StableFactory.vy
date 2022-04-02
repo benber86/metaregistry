@@ -30,6 +30,7 @@ interface BaseRegistry:
     def pool_list(pool_id: uint256) -> address: view
     def get_base_pool(_pool: address) -> address: view
     def get_meta_n_coins(_pool: address) -> (uint256, uint256): view
+    def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool): view
 
 interface MetaRegistry:
     def admin() -> address: view
@@ -321,3 +322,11 @@ def get_base_pool(_pool: address) -> address:
 def get_virtual_price_from_lp_token(_token: address) -> uint256:
     return CurvePool(_token).get_virtual_price()
 
+@view
+@external
+def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
+    i: int128 = 0
+    j: int128 = 0
+    meta: bool = False
+    i, j, meta = self.base_registry.get_coin_indices(_pool, _from, _to)
+    return [convert(i, uint256), convert(j, uint256), convert(meta, uint256)]

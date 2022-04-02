@@ -27,6 +27,7 @@ interface BaseRegistry:
     def get_fees(_pool: address) -> uint256[4]: view
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
+    def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[2]: view
 
 interface MetaRegistry:
     def admin() -> address: view
@@ -259,3 +260,9 @@ def get_base_pool(_pool: address) -> address:
 @view
 def get_virtual_price_from_lp_token(_token: address) -> uint256:
     return self.base_registry.get_virtual_price_from_lp_token(_token)
+
+@view
+@external
+def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[3]:
+    indices: uint256[2] = self.base_registry.get_coin_indices(_pool, _from, _to)
+    return [indices[0], indices[1], 0]
