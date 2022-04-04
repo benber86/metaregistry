@@ -109,9 +109,5 @@ def sync_registries(
                 metaregistry.sync_registry(i, 10, {"from": owner})
             except Exception as e:
                 print(f"Error 1: {e}\n Retrying")
-                try:
-                    metaregistry.sync_registry(i, 10, {"from": owner})
-                except Exception as e:
-                    print(f"Error 2: {e}\n Retrying")
-                    time.wait(10)
-                    metaregistry.sync_registry(i, 10, {"from": owner})
+                time.sleep(10)
+                metaregistry.sync_registry(i, 10, {"from": owner})
