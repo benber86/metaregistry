@@ -12,13 +12,7 @@ from .abis import (
 )
 
 
-def test_get_coins(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_coins(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -30,13 +24,7 @@ def test_get_coins(metaregistry):
                 assert coin == metaregistry_output[j]
 
 
-def test_get_A(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_A(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -50,13 +38,7 @@ def test_get_A(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_D(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_D(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -72,13 +54,7 @@ def test_get_D(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_gamma(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_gamma(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -94,13 +70,7 @@ def test_get_gamma(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_base_pool(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_base_pool(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -133,13 +103,7 @@ def test_get_base_pool(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_pool_asset_type(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_pool_asset_type(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -162,13 +126,7 @@ def test_get_pool_asset_type(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_admin_balances(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_admin_balances(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -204,13 +162,7 @@ def test_get_admin_balances(metaregistry):
                 assert output == metaregistry_output[j]
 
 
-def test_get_fees(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_fees(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -239,13 +191,7 @@ def test_get_fees(metaregistry):
                 assert output == metaregistry_output[j]
 
 
-def test_get_pool_name(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_pool_name(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -269,13 +215,7 @@ def test_get_pool_name(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_is_meta(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_is_meta(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -289,13 +229,7 @@ def test_is_meta(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_gauges(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_gauges(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)
@@ -321,13 +255,7 @@ def test_get_gauges(metaregistry):
             assert actual_output == metaregistry_output
 
 
-def test_get_lp_token(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_lp_token(metaregistry, registries):
     for i, registry in enumerate(registries):
         for pool_index in range(registry.pool_count()):
             pool = registry.pool_list(pool_index)

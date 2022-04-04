@@ -76,21 +76,27 @@ def crypto_factory_handler(owner, metaregistry):
     yield handler
 
 
+@pytest.fixture(scope="module")
+def registries():
+    yield [
+        stable_factory(),
+        stable_registry(),
+        crypto_factory(),
+        crypto_registry(),
+    ]
+
+
 @pytest.fixture(scope="module", autouse=True)
 def sync_registries(
     metaregistry,
+    registries,
     stable_factory_handler,
     stable_registry_handler,
     crypto_factory_handler,
     crypto_registry_handler,
     owner,
 ):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+
     # split the initial syncs to avoid hitting gas limit
     for i in range(metaregistry.registry_length()):
         registry = registries[i]
