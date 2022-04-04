@@ -7,3 +7,4 @@
 - Add `get_coin_indices` 
 - Speed up test set up
 - Fix / improve the `is_active` logic for registries
+- Refactor `get_A`, `get_gamma` etc into `get_params` with buffer for potential future new pool params
