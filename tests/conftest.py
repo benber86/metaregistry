@@ -1,7 +1,7 @@
 import pytest
 import math
 import time
-from ape_compile import (
+from brownie import (
     MetaRegistry,
     StableRegistry,
     CryptoRegistry,
