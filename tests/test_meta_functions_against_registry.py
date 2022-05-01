@@ -1,13 +1,8 @@
-import pytest
 from brownie import interface, accounts
 from .utils.constants import ADDRESS_ZERO
 from .abis import (
     curve_pool,
     curve_pool_v2,
-    crypto_registry,
-    crypto_factory,
-    stable_registry,
-    stable_factory,
     gauge_controller,
 )
 

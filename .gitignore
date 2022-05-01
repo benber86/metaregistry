@@ -4,4 +4,3 @@ __pycache__
 build/
 reports/
 venv/
-.build/

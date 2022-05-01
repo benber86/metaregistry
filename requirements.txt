@@ -1,2 +1,2 @@
-eth-ape
+eth-brownie
 black

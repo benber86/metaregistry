@@ -1,29 +1,22 @@
-import pytest
-import random
 import itertools
-from brownie import interface
 
-from .abis import stable_factory, stable_registry, crypto_factory, crypto_registry
-from .utils.constants import ADDRESS_ZERO
+from brownie import ZERO_ADDRESS
 
 
-def test_get_coin_indices(metaregistry):
-    registries = [
-        stable_factory(),
-        stable_registry(),
-        crypto_factory(),
-        crypto_registry(),
-    ]
+def test_get_coin_indices(metaregistry, registries):
+
+    print("MetaRegistry registry_length(): ", metaregistry.registry_length())
 
     for i, registry in enumerate(registries):
-        for pool_index in range(
-            registry.pool_count()
-        ):  # range(min(10, registry.pool_count())):
+
+        for pool_index in range(registry.pool_count()):
+
             pool = registry.pool_list(pool_index)
 
+            print(f"Checking if pool {pool} is a metapool, in registry {registry}")
             is_meta = metaregistry.is_meta(pool)
             pool_coins = [
-                coin for coin in metaregistry.get_coins(pool) if coin != ADDRESS_ZERO
+                coin for coin in metaregistry.get_coins(pool) if coin != ZERO_ADDRESS
             ]
 
             base_combinations = list(itertools.combinations(pool_coins, 2))
@@ -32,7 +25,7 @@ def test_get_coin_indices(metaregistry):
                 underlying_coins = [
                     coin
                     for coin in metaregistry.get_underlying_coins(pool)
-                    if coin != ADDRESS_ZERO
+                    if coin != ZERO_ADDRESS
                 ]
                 all_combinations = all_combinations + [
                     (pool_coins[0], coin) for coin in underlying_coins

@@ -1,7 +1,4 @@
-import pytest
-import random
 import itertools
-from brownie import interface
 
 from .utils.constants import ADDRESS_ZERO
 

@@ -1,5 +1,4 @@
 import pytest
-from brownie import interface
 from .utils.constants import (
     FXS_ETH_POOL,
     DYDX_STAKED_POOL,

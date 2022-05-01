@@ -8,7 +8,7 @@
 interface AddressProvider:
     def admin() -> address: view
     def get_address(_id: uint256) -> address: view
-    def get_id_info(_id: uint256) -> AddressInfo: view
+    def get_id_info(_id: uint256) -> ((address, bool, uint256, uint256, String[64])): view
 
 interface RegistryHandler:
     def sync_pool_list(_limit: uint256): nonpayable
@@ -171,8 +171,13 @@ def _unregister_coin(_coin: address):
 def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _registry_handler: address, _description: String[64], _is_active: bool):
     assert _index <= self.registry_length
 
+    print(_index)
+
     if _index == self.registry_length:
         self.registry_length += 1
+
+    print("registry length")
+    print(self.registry_length)
 
     self.get_registry[_index] = Registry({addr: _addr, id: _id, registry_handler: _registry_handler, description: _description, is_active: _is_active})
     if (self.authorized_registries[_registry_handler] != _is_active):
@@ -359,8 +364,14 @@ def add_registry_by_address_provider_id(_id: uint256, _registry_handler: address
     """
     assert msg.sender == self.owner  # dev: only owner
 
-    pool_info: AddressInfo = self.address_provider.get_id_info(_id)
-    self._update_single_registry(self.registry_length, pool_info.addr, _id, _registry_handler, pool_info.description, pool_info.is_active)
+    addr: address = ZERO_ADDRESS
+    is_active: bool = False
+    version: uint256 = 0
+    last_modified: uint256 = 0
+    description: String[64] = ""
+
+    (addr, is_active, version, last_modified, description) = self.address_provider.get_id_info(_id)
+    self._update_single_registry(self.registry_length, addr, _id, _registry_handler, description, is_active)
 
 
 @external
@@ -370,14 +381,21 @@ def update_registry_addresses() -> uint256:
     @return The number of updates applied
     """
     assert msg.sender == self.owner  # dev: only owner
+    
+    addr: address = ZERO_ADDRESS
+    is_active: bool = False
+    version: uint256 = 0
+    last_modified: uint256 = 0
+    description: String[64] = ""
     count: uint256 = 0
+
     for i in range(MAX_REGISTRIES):
         if i == self.registry_length:
             break
         registry: Registry = self.get_registry[i]
         if (registry.is_active and registry.addr != self.address_provider.get_address(registry.id)):
-            pool_info: AddressInfo = self.address_provider.get_id_info(i)
-            self._update_single_registry(i, pool_info.addr, registry.id, registry.registry_handler, pool_info.description, pool_info.is_active)
+            (addr, is_active, version, last_modified, description) = self.address_provider.get_id_info(i)
+            self._update_single_registry(i, addr, registry.id, registry.registry_handler, description, is_active)
             count += 1
     return count
 
