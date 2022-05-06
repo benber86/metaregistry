@@ -9,7 +9,19 @@ from brownie import (
     CryptoFactory,
 )
 
-# from .abis import stable_factory, stable_registry, crypto_factory, crypto_registry
+from .abis import stable_factory, stable_registry, crypto_factory, crypto_registry
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--synclimit", type=int, action="store", default=0,
+        help="Only syncs up to the specified number of pools on each registry",
+    )
+
+
+@pytest.fixture(scope="session")
+def sync_limit(request):
+    return request.config.getoption("--synclimit")
 
 
 @pytest.fixture(scope="session")
@@ -75,38 +87,40 @@ def crypto_factory_handler(owner, metaregistry):
     yield handler
 
 
-# @pytest.fixture(scope="module")
-# def registries():
-#     yield [
-#         stable_factory(),
-#         stable_registry(),
-#         crypto_factory(),
-#         crypto_registry(),
-#     ]
+@pytest.fixture(scope="module")
+def registries():
+    yield [
+        stable_factory(),
+        stable_registry(),
+        crypto_factory(),
+        crypto_registry(),
+    ]
 
 
 @pytest.fixture(scope="module", autouse=True)
 def sync_registries(
     metaregistry,
-    # registries,
+    registries,
+    stable_factory_handler,
+    stable_registry_handler,
+    crypto_factory_handler,
+    crypto_registry_handler,
     owner,
+    sync_limit
 ):
 
-    print("testing assertion")
-    assert metaregistry.registry_length() > 0
-    raise
-    # # split the initial syncs to avoid hitting gas limit
-    # for i in range(metaregistry.registry_length()):
-    #     registry = registries[i]
-    #     total_pools = registry.pool_count()
-    #     print(f"total pools in registry {registry}: ", total_pools)
-    #     for j in range((math.ceil(total_pools / 10))):
-    #         print(
-    #             f"Syncing {j+1} * 10 ({(j+1) * 10}) pools out of {total_pools} for registry {i}"
-    #         )
-    #         try:
-    #             metaregistry.sync_registry(i, 10, {"from": owner})
-    #         except Exception as e:
-    #             print(f"Error 1: {e}\n Retrying")
-    #             time.sleep(10)
-    #             metaregistry.sync_registry(i, 10, {"from": owner})
+    # split the initial syncs to avoid hitting gas limit
+    for i in range(metaregistry.registry_length()):
+        registry = registries[i]
+        total_pools = registry.pool_count() if sync_limit == 0 else sync_limit
+        print(f"total pools in registry {registry}: ", total_pools)
+        for j in range((math.ceil(total_pools / 10))):
+            print(
+                f"Syncing {j+1} * 10 ({(j+1) * 10}) pools out of {total_pools} for registry {i}"
+            )
+            try:
+                metaregistry.sync_registry(i, 10, {"from": owner})
+            except Exception as e:
+                print(f"Error 1: {e}\n Retrying")
+                time.sleep(10)
+                metaregistry.sync_registry(i, 10, {"from": owner})
