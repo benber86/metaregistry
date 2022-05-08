@@ -340,7 +340,12 @@ def get_virtual_price_from_lp_token(_token: address) -> uint256:
 @view
 @external
 def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool):
-    return self.base_registry.get_coin_indices(_pool, _from, _to)
+    coin1: int128 = 0
+    coin2: int128 = 0
+    is_underlying: bool = False
+    (coin1, coin2, is_underlying) = self.base_registry.get_coin_indices(_pool, _from, _to)
+    # we discard is_underlying as it's always true due to a bug in original factory contract
+    return (coin1, coin2, not self._is_meta(_pool))
 
 
 # ---- lesser used methods go here (slightly more gas optimal) ---- #
