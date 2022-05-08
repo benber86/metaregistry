@@ -11,9 +11,6 @@ interface AddressProvider:
 
 interface BaseRegistry:
     def get_coins(_pool: address) -> address[MAX_COINS]: view
-    def get_A(_pool: address) -> uint256: view
-    def get_D(_pool: address) -> uint256: view
-    def get_gamma(_pool: address) -> uint256: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
     def get_balances(_pool: address) -> uint256[MAX_COINS]: view
     def get_admin_balances(_pool: address) -> uint256[MAX_COINS]: view
@@ -26,6 +23,21 @@ interface BaseRegistry:
     def pool_count() -> uint256: view
     def pool_list(pool_id: uint256) -> address: view
     def get_coin_indices(_pool: address, _from: address, _to: address) -> uint256[2]: view
+
+
+interface CurvePool:
+    def A() -> uint256: view
+    def D() -> uint256: view
+    def gamma() -> uint256: view
+    def fee() -> uint256: view
+    def mid_fee() -> uint256: view
+    def out_fee() -> uint256: view
+    def allowed_extra_profit() -> uint256: view
+    def fee_gamma() -> uint256: view
+    def adjustment_step() -> uint256: view
+    def ma_half_time() -> uint256: view
+    def admin_fee() -> uint256: view
+    def get_virtual_price() -> uint256: view
 
 
 interface MetaRegistry:
@@ -236,20 +248,23 @@ def get_pool_asset_type(_pool: address) -> uint256:
 
 @external
 @view
-def get_A(_pool: address) -> uint256:
-    return self.base_registry.get_A(_pool)
+def get_pool_params(_pool: address) -> uint256[20]:
+    """
+    @notice returns pool params given a cryptopool address
+    @dev contains all settable parameter that alter the pool's performance
+    @dev only applicable for cryptopools
+    @param _pool Address of the pool for which data is being queried.
+    """
 
-
-@external
-@view
-def get_D(_pool: address) -> uint256:
-    return self.base_registry.get_D(_pool)
-
-
-@external
-@view
-def get_gamma(_pool: address) -> uint256:
-    return self.base_registry.get_gamma(_pool)
+    pool_params: uint256[20] = empty(uint256[20])
+    pool_params[0] = CurvePool(_pool).A()
+    pool_params[1] = CurvePool(_pool).D()
+    pool_params[2] = CurvePool(_pool).gamma()
+    pool_params[3] = CurvePool(_pool).allowed_extra_profit()
+    pool_params[4] = CurvePool(_pool).fee_gamma()
+    pool_params[5] = CurvePool(_pool).adjustment_step()
+    pool_params[6] = CurvePool(_pool).ma_half_time()
+    return pool_params
 
 
 @external

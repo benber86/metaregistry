@@ -257,20 +257,10 @@ def get_pool_asset_type(_pool: address) -> uint256:
 
 @external
 @view
-def get_A(_pool: address) -> uint256:
-    return self.base_registry.get_A(_pool)
-
-
-@external
-@view
-def get_D(_pool: address) -> uint256:
-    return 0
-
-
-@external
-@view
-def get_gamma(_pool: address) -> uint256:
-    return 0
+def get_pool_params(_pool: address) -> uint256[20]:
+    stableswap_pool_params: uint256[20] = empty(uint256[20])
+    stableswap_pool_params[0] = self.base_registry.get_A(_pool)
+    return stableswap_pool_params
 
 
 @external

@@ -5,9 +5,6 @@ from .utils.constants import ADDRESS_ZERO
 
 def test_find_coins(metaregistry):
     pool_count = metaregistry.pool_count()
-    # test on a random subset of 10 pools
-    # for i in range(10):
-    #    pool_index = random.randint(1, pool_count) - 1
     for pool_index in range(pool_count):
         pool = metaregistry.pool_list(pool_index)
 

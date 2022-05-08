@@ -14,7 +14,10 @@ from .abis import stable_factory, stable_registry, crypto_factory, crypto_regist
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--synclimit", type=int, action="store", default=0,
+        "--synclimit",
+        type=int,
+        action="store",
+        default=0,
         help="Only syncs up to the specified number of pools on each registry",
     )
 
@@ -106,7 +109,7 @@ def sync_registries(
     crypto_factory_handler,
     crypto_registry_handler,
     owner,
-    sync_limit
+    sync_limit,
 ):
 
     # split the initial syncs to avoid hitting gas limit

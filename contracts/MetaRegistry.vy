@@ -15,9 +15,7 @@ interface RegistryHandler:
     def reset_pool_list(): nonpayable
     def get_coins(_pool: address) -> address[MAX_COINS]: view
     def get_base_pool(_pool: address) -> address: view
-    def get_A(_pool: address) -> uint256: view
-    def get_D(_pool: address) -> uint256: view
-    def get_gamma(_pool: address) -> uint256: view
+    def get_pool_params(_pool: address) -> uint256[20]: view
     def get_n_coins(_pool: address) -> uint256: view
     def get_underlying_coins(_pool: address) -> address[MAX_COINS]: view
     def get_decimals(_pool: address) -> uint256[MAX_COINS]: view
@@ -133,6 +131,7 @@ def _register_coin(_coin: address):
         self.coin_count += 1
     self.coins[_coin].register_count += 1
 
+
 @internal
 def _register_coin_pair(_coina: address, _coinb: address, _key: uint256):
     # register _coinb in _coina's array of coins
@@ -148,6 +147,7 @@ def _register_coin_pair(_coina: address, _coinb: address, _key: uint256):
         self.coin_swap_indexes[_key] = shift(coin_a_pos, 128) + coin_b_pos
     else:
         self.coin_swap_indexes[_key] = shift(coin_b_pos, 128) + coin_a_pos
+
 
 @internal
 def _unregister_coin(_coin: address):
@@ -171,13 +171,8 @@ def _unregister_coin(_coin: address):
 def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _registry_handler: address, _description: String[64], _is_active: bool):
     assert _index <= self.registry_length
 
-    print(_index)
-
     if _index == self.registry_length:
         self.registry_length += 1
-
-    print("registry length")
-    print(self.registry_length)
 
     self.get_registry[_index] = Registry({addr: _addr, id: _id, registry_handler: _registry_handler, description: _description, is_active: _is_active})
     if (self.authorized_registries[_registry_handler] != _is_active):
@@ -186,8 +181,8 @@ def _update_single_registry(_index: uint256, _addr: address, _id: uint256, _regi
 
 @internal
 def _sync_registry(_index: uint256, _limit: uint256):
-        registry: Registry = self.get_registry[_index]
-        RegistryHandler(registry.registry_handler).sync_pool_list(_limit)
+    registry: Registry = self.get_registry[_index]
+    RegistryHandler(registry.registry_handler).sync_pool_list(_limit)
 
 
 @external
@@ -605,34 +600,13 @@ def get_pool_asset_type(_pool: address) -> uint256:
 
 @external
 @view
-def get_A(_pool: address) -> uint256:
+def get_pool_params(_pool: address) -> uint256[20]:
     """
-    @notice Return A parameter
-    @return uint256 A value
+    @notice Return pool parameters for a 
+    @param _pool address of the pool
+    @return uint256[20] zero-padded array containing pool params
     """
-    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_A(_pool)
-
-
-@external
-@view
-def get_D(_pool: address) -> uint256:
-    """
-    @notice Return D parameter for v2 pools
-    @dev Returns 0 for v1 pools
-    @return uint256 D value
-    """
-    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_D(_pool)
-
-
-@external
-@view
-def get_gamma(_pool: address) -> uint256:
-    """
-    @notice Return gamma parameter for v2 pools
-    @dev Returns 0 for v1 pools
-    @return uint256 Gamma value
-    """
-    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_gamma(_pool)
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_pool_params(_pool)
 
 
 @external

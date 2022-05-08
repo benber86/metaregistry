@@ -255,9 +255,10 @@ def test_get_pool_asset_type(metaregistry, pools):
 )
 def test_get_pool_parameters(metaregistry, pools):
     pool_type, pool, version = pools
-    a = metaregistry.get_A(pool.address)
-    d = metaregistry.get_D(pool.address)
-    gamma = metaregistry.get_gamma(pool.address)
+    pool_params = metaregistry.get_pool_params(pool.address)
+    a = pool_params[0]
+    d = pool_params[1]
+    gamma = pool_params[2]
     assert a > 0
     if version == 1:
         assert d == 0

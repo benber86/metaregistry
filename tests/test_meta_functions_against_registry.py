@@ -20,53 +20,45 @@ def test_get_coins(metaregistry, registries, sync_limit):
                 assert coin == metaregistry_output[j]
 
 
-def test_get_A(metaregistry, registries, sync_limit):
+def test_get_pool_params_stableswap_cryptoswap(metaregistry, registries, sync_limit):
+    """This test is only for stableswap and cryptoswap amms"""
     for i, registry in enumerate(registries):
         total_pools = registry.pool_count() if sync_limit == 0 else sync_limit
         for pool_index in range(total_pools):
             pool = registry.pool_list(pool_index)
+            print(f"testing get_pool_params for pool: {pool}")
+            metaregistry_output = metaregistry.get_pool_params(pool)
+            print(f"metaregistry output: {metaregistry_output}")
+            actual_pool_params = [0] * 20
 
-            # get_A
+            # A
             if i != 2:
-                actual_output = registry.get_A(pool)
+                actual_pool_params[0] = registry.get_A(pool)
             else:
-                actual_output = curve_pool_v2(pool).A()
-            metaregistry_output = metaregistry.get_A(pool)
-            assert actual_output == metaregistry_output
+                actual_pool_params[0] = curve_pool_v2(pool).A()
 
-
-def test_get_D(metaregistry, registries, sync_limit):
-    for i, registry in enumerate(registries):
-        total_pools = registry.pool_count() if sync_limit == 0 else sync_limit
-        for pool_index in range(total_pools):
-            pool = registry.pool_list(pool_index)
-
-            # get_D
+            # D
             if i == 3:
-                actual_output = registry.get_D(pool)
+                actual_pool_params[1] = registry.get_D(pool)
             elif i == 2:
-                actual_output = curve_pool_v2(pool).D()
-            else:
-                actual_output = 0
-            metaregistry_output = metaregistry.get_D(pool)
-            assert actual_output == metaregistry_output
+                actual_pool_params[1] = curve_pool_v2(pool).D()
 
-
-def test_get_gamma(metaregistry, registries, sync_limit):
-    for i, registry in enumerate(registries):
-        total_pools = registry.pool_count() if sync_limit == 0 else sync_limit
-        for pool_index in range(total_pools):
-            pool = registry.pool_list(pool_index)
-
-            # get_gamma
+            # gamma
             if i == 3:
-                actual_output = registry.get_gamma(pool)
+                actual_pool_params[2] = registry.get_gamma(pool)
             elif i == 2:
-                actual_output = curve_pool_v2(pool).gamma()
-            else:
-                actual_output = 0
-            metaregistry_output = metaregistry.get_gamma(pool)
-            assert actual_output == metaregistry_output
+                actual_pool_params[2] = curve_pool_v2(pool).gamma()
+
+            # allowed_extra_profit
+            if i in [2, 3]:
+                actual_pool_params[3] = curve_pool_v2(pool).allowed_extra_profit()
+                actual_pool_params[4] = curve_pool_v2(pool).fee_gamma()
+                actual_pool_params[5] = curve_pool_v2(pool).adjustment_step()
+                actual_pool_params[6] = curve_pool_v2(pool).ma_half_time()
+
+            print(f"actual pool params: {actual_pool_params}")
+            assert actual_pool_params == metaregistry_output
+            print(f"passed for pool: {pool}.")
 
 
 def test_get_base_pool(metaregistry, registries, sync_limit):

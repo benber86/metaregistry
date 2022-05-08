@@ -24,6 +24,10 @@ interface CurvePool:
     def fee() -> uint256: view
     def mid_fee() -> uint256: view
     def out_fee() -> uint256: view
+    def allowed_extra_profit() -> uint256: view
+    def fee_gamma() -> uint256: view
+    def adjustment_step() -> uint256: view
+    def ma_half_time() -> uint256: view
     def admin_fee() -> uint256: view
     def get_virtual_price() -> uint256: view
 
@@ -83,7 +87,7 @@ def __init__(_metaregistry: address, _id: uint256):
     self.registry_index = MetaRegistry(_metaregistry).registry_length()
 
 
-# ---- internal methods ---- #
+# ---- Most used Methods: MetaRegistry append / add to registry ---- #
 @internal
 @view
 def _get_coins(_pool: address) -> address[MAX_METAREGISTRY_COINS]:
@@ -100,28 +104,6 @@ def _get_lp_token(_pool: address) -> address:
     return self.base_registry.get_token(_pool)
 
 
-@internal
-@view
-def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COINS]:
-    _padded_array: uint256[MAX_METAREGISTRY_COINS] = empty(uint256[MAX_METAREGISTRY_COINS])
-    for i in range(MAX_COINS):
-        _padded_array[i] = _array[i]
-    return _padded_array
-
-
-@internal
-@view
-def _get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
-    return self._pad_uint_array(self.base_registry.get_decimals(_pool))
-
-
-@internal
-@view
-def _get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
-    return self._pad_uint_array(self.base_registry.get_balances(_pool))
-
-
-# ---- Most used Methods: MetaRegistry append / add to registry ---- #
 @external
 def sync_pool_list(_limit: uint256):
     """
@@ -150,6 +132,27 @@ def sync_pool_list(_limit: uint256):
 
 
 # ---- view methods (API) of the contract ---- #
+@internal
+@view
+def _pad_uint_array(_array: uint256[MAX_COINS]) -> uint256[MAX_METAREGISTRY_COINS]:
+    _padded_array: uint256[MAX_METAREGISTRY_COINS] = empty(uint256[MAX_METAREGISTRY_COINS])
+    for i in range(MAX_COINS):
+        _padded_array[i] = _array[i]
+    return _padded_array
+
+
+@internal
+@view
+def _get_decimals(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._pad_uint_array(self.base_registry.get_decimals(_pool))
+
+
+@internal
+@view
+def _get_balances(_pool: address) -> uint256[MAX_METAREGISTRY_COINS]:
+    return self._pad_uint_array(self.base_registry.get_balances(_pool))
+
+
 @external
 @view
 def is_registered(_pool: address) -> bool:
@@ -272,20 +275,29 @@ def get_pool_asset_type(_pool: address) -> uint256:
 
 @external
 @view
-def get_A(_pool: address) -> uint256:
-    return CurvePool(_pool).A()
-
-
-@external
-@view
 def get_D(_pool: address) -> uint256:
     return CurvePool(_pool).D()
 
 
 @external
 @view
-def get_gamma(_pool: address) -> uint256:
-    return CurvePool(_pool).gamma()
+def get_pool_params(_pool: address) -> uint256[20]:
+    """
+    @notice returns pool params given a cryptopool address
+    @dev contains all settable parameter that alter the pool's performance
+    @dev only applicable for cryptopools
+    @param _pool Address of the pool for which data is being queried.
+    """
+
+    pool_params: uint256[20] = empty(uint256[20])
+    pool_params[0] = CurvePool(_pool).A()
+    pool_params[1] = CurvePool(_pool).D()
+    pool_params[2] = CurvePool(_pool).gamma()
+    pool_params[3] = CurvePool(_pool).allowed_extra_profit()
+    pool_params[4] = CurvePool(_pool).fee_gamma()
+    pool_params[5] = CurvePool(_pool).adjustment_step()
+    pool_params[6] = CurvePool(_pool).ma_half_time()
+    return pool_params
 
 
 @external
