@@ -49,7 +49,7 @@ def test_get_coin_indices(metaregistry, registries, sync_limit):
                         pool, combination[0], combination[1]
                     )
                 # fix bug with stable registry & is_underlying always true
-                if i == 0:
+                if metaregistry.pool_to_registry(pool)[0] == 1:
                     actual_output = list(actual_output)
                     actual_output[-1] = not registry.is_meta(pool)
                 assert actual_output == metaregistry_output

@@ -23,7 +23,7 @@ interface BaseRegistry:
     def pool_list(pool_id: uint256) -> address: view
     def get_base_pool(_pool: address) -> address: view
     def get_meta_n_coins(_pool: address) -> (uint256, uint256): view
-    def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool): view
+    def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128): view
 
 
 interface MetaRegistry:
@@ -342,8 +342,7 @@ def get_virtual_price_from_lp_token(_token: address) -> uint256:
 def get_coin_indices(_pool: address, _from: address, _to: address) -> (int128, int128, bool):
     coin1: int128 = 0
     coin2: int128 = 0
-    is_underlying: bool = False
-    (coin1, coin2, is_underlying) = self.base_registry.get_coin_indices(_pool, _from, _to)
+    (coin1, coin2) = self.base_registry.get_coin_indices(_pool, _from, _to)
     # we discard is_underlying as it's always true due to a bug in original factory contract
     return (coin1, coin2, not self._is_meta(_pool))
 
