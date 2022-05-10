@@ -116,9 +116,9 @@ transfer_ownership_deadline: public(uint256)
 
 # ---- constructor ---- #
 @external
-def __init__(_owner: address):
+def __init__(_owner: address, address_provider: address):
     self.owner = _owner
-    self.address_provider = AddressProvider(0x0000000022D53366457F9d5E68Ec105046FC4383)
+    self.address_provider = AddressProvider(address_provider)
 
 
 # ---- most used Methods: authorised registry callback methods ---- #
@@ -403,7 +403,6 @@ def sync_registry(_index: uint256, _limit: uint256 = 0):
     @param _index Registry index
     @param _limit Max number of pools to sync
     """
-    assert msg.sender == self.owner  # dev: only owner
     assert _index < self.registry_length
     self._sync_registry(_index, _limit)
 
@@ -413,8 +412,6 @@ def sync():
     """
     @notice Gets all the pools from a registry that are not currently registered
     """
-    assert msg.sender == self.owner  # dev: only owner
-
     for i in range(MAX_REGISTRIES):
         if i == self.registry_length:
             break
@@ -468,6 +465,17 @@ def get_underlying_coins(_pool: address) -> address[MAX_COINS]:
     @return List of coin addresses
     """
     return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_underlying_coins(_pool)
+
+
+@external
+@view
+def is_registered(_pool: address) -> bool:
+    """
+    @notice Check if a pool is in the metaregistry using get_n_coins
+    @param _pool The address of the pool
+    @return A bool corresponding to whether the pool belongs or not
+    """
+    return RegistryHandler(self._get_registry_handler_from_pool(_pool)).get_n_coins(_pool) > 0
 
 
 @external

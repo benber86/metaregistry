@@ -1,6 +1,6 @@
 from brownie import interface, accounts
-from .utils.constants import ADDRESS_ZERO
-from .abis import (
+from tests.utils.constants import ADDRESS_ZERO
+from tests.abis import (
     curve_pool,
     curve_pool_v2,
     gauge_controller,

@@ -67,7 +67,6 @@ struct PoolInfo:
 
 
 # ---- constants ---- #
-ADDRESS_PROVIDER: constant(address) = 0x0000000022D53366457F9d5E68Ec105046FC4383
 BTC_BASE_POOL: constant(address) = 0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714
 GAUGE_CONTROLLER: constant(address) = 0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB
 MAX_COINS: constant(uint256) = 4
@@ -85,9 +84,9 @@ total_pools: public(uint256)
 
 # ---- constructor ---- #
 @external
-def __init__(_metaregistry: address, _id: uint256):
+def __init__(_metaregistry: address, _id: uint256, address_provider: address):
     self.metaregistry = _metaregistry
-    self.base_registry = BaseRegistry(AddressProvider(ADDRESS_PROVIDER).get_address(_id))
+    self.base_registry = BaseRegistry(AddressProvider(address_provider).get_address(_id))
     self.registry_id = _id
     self.registry_index = MetaRegistry(_metaregistry).registry_length()
 
@@ -170,7 +169,7 @@ def sync_pool_list(_limit: uint256):
     @dev To be called from the metaregistry
     @param _limit Maximum number of pool to sync (avoid hitting gas limit), 0 = no limits
     """
-    assert msg.sender == self.metaregistry
+    assert msg.sender == self.metaregistry  # dev: only metaregistry has access
     last_pool: uint256 = self.total_pools
     pool_cap: uint256 = self.base_registry.pool_count()
     if (_limit > 0):
@@ -354,7 +353,7 @@ def reset_pool_list():
     @notice Removes all pools from the metaregistry
     @dev To be called from the metaregistry
     """
-    assert msg.sender == self.metaregistry
+    assert msg.sender == self.metaregistry  # dev: only metaregistry has access
     pool_count: uint256 = self.base_registry.pool_count()
     last_pool: uint256 = self.total_pools
     for i in range(MAX_POOLS):

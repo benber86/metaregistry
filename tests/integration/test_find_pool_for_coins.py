@@ -1,6 +1,6 @@
 import itertools
 
-from .utils.constants import ADDRESS_ZERO
+from tests.utils.constants import ADDRESS_ZERO
 
 
 def test_find_coins(metaregistry):
